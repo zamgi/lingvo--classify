@@ -132,21 +132,24 @@ namespace lingvo.classify
                 var modelDictionaryNative = new Dictionary< IntPtr, IntPtr >( Math.Max( config.RowCapacity, 1000 ), 
                                                                               default(IntPtrEqualityComparer) );
 
-                LoadModelFilenameContentMMF( config.Filename, delegate( ref ModelRow row )  
+                foreach ( var filename in config.Filenames )
                 {
-                    var textPtr = AllocHGlobalAndCopy( row.TextPtr, row.TextLength );
-                    //!!! -= MUST BE EQUALS IN ALL RECORDS =- !!!!
-                    byte countWeightClasses = (byte) row.WeightClasses.Count;
-                    var weightClassesPtr = Marshal.AllocHGlobal( sizeof(byte) + countWeightClasses * sizeof(float) );
-                    var weightClassesBytePtr = (byte*) weightClassesPtr;
-                    *weightClassesBytePtr++ = countWeightClasses;
-                    var weightClassesFloatPtr = (float*) weightClassesBytePtr;
-                    for ( var i = 0; i < countWeightClasses; i++ )
+                    LoadModelFilenameContentMMF( filename, delegate( ref ModelRow row ) 
                     {
-                        weightClassesFloatPtr[ i ] = row.WeightClasses[ i ];
-                    }
-                    modelDictionaryNative.Add( textPtr, weightClassesPtr );
-                } );
+                        var textPtr = AllocHGlobalAndCopy( row.TextPtr, row.TextLength );
+                        //!!! -= MUST BE EQUALS IN ALL RECORDS =- !!!!
+                        byte countWeightClasses = (byte) row.WeightClasses.Count;
+                        var weightClassesPtr = Marshal.AllocHGlobal( sizeof(byte) + countWeightClasses * sizeof(float) );
+                        var weightClassesBytePtr = (byte*) weightClassesPtr;
+                        *weightClassesBytePtr++ = countWeightClasses;
+                        var weightClassesFloatPtr = (float*) weightClassesBytePtr;
+                        for ( var i = 0; i < countWeightClasses; i++ )
+                        {
+                            weightClassesFloatPtr[ i ] = row.WeightClasses[ i ];
+                        }
+                        modelDictionaryNative.Add( textPtr, weightClassesPtr );
+                    } );
+                }
 
                 return (modelDictionaryNative);
             }

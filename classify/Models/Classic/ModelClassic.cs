@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -69,36 +70,41 @@ namespace lingvo.classify
                 var modelDictionary = new Dictionary< string, float[] >( Math.Max( config.RowCapacity, 1000 ) );
                 //var totalClassCount = default(int);
 
-                using ( var sr = new StreamReader( config.Filename ) )
+                var a_len = -1;
+                foreach ( var filename in config.Filenames )
                 {
-                    var line  = default(string);
-                    var a_len = -1;
-                    while ( (line = sr.ReadLine()) != null ) 
+                    using ( var sr = new StreamReader( filename ) )
                     {
-                        //skip comment & header
-                        line = line.Trim();
-                        if ( line.StartsWith( "#" ) )
+                        var line  = default(string);                        
+                        while ( (line = sr.ReadLine()) != null ) 
                         {
-                            continue;
+                            //skip comment & header
+                            line = line.Trim();
+                            if ( line.StartsWith( "#" ) )
+                            {
+                                continue;
+                            }
+
+                            var a = line.Split( SPLIT_CHARS, StringSplitOptions.RemoveEmptyEntries );
+                            if ( (a.Length < 2) || (a.Length != a_len && a_len != -1) )
+                            {
+                                Debug.WriteLine( "(a.Length < 2) || (a.Length != a_len && a_len != -1)" );
+						        continue;                                
+                                //throw (new InvalidDataException());
+                            }
+                            a_len = a.Length;
+
+                            var ngram  = a[ 0 ].Trim().ToUpperInvariant();
+                            var row    = (from f in a.Skip( 1 )
+                                          select float.Parse( f.Trim(), NS, NFI )
+                                         ).ToArray();
+
+                            modelDictionary.Add( ngram, row );
                         }
-
-                        var a = line.Split( SPLIT_CHARS, StringSplitOptions.RemoveEmptyEntries );
-                        if ( (a.Length < 2) || (a.Length != a_len && a_len != -1) )
-                        {
-						    continue;
-                            //throw (new InvalidDataException());
-                        }
-                        a_len = a.Length;
-
-                        var ngram  = a[ 0 ].Trim().ToUpperInvariant();
-                        var row    = (from f in a.Skip( 1 )
-                                      select float.Parse( f.Trim(), NS, NFI )
-                                     ).ToArray();
-
-                        modelDictionary.Add( ngram, row );
+                        //totalClassCount = a_len - 1;
                     }
-                    //totalClassCount = a_len - 1;
                 }
+                
 
                 return (modelDictionary);
             }

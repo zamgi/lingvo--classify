@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 using lingvo.tokenizing;
 
@@ -9,7 +10,7 @@ namespace lingvo.classify
     /// </summary>
     public sealed class ModelConfig
     {
-        public string     Filename
+        public IEnumerable< string > Filenames
         {
             get;
             set;

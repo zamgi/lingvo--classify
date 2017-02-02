@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 using lingvo.tokenizing;
 
@@ -10,7 +11,7 @@ namespace lingvo.classify
     public interface IModel : IDisposable
     {
         NGramsType NGramsType { get; }
-        string     Filename { get; }        
+        IEnumerable< string > Filenames { get; }        
         int        VectorLength { get; }
         double[]   VectorsSquareLength { get; }
         int        TotalClassCount { get; }

@@ -338,9 +338,9 @@ namespace lingvo.classify
         {
             get { return (_Model.VectorLength); }
         }
-        public string     ModelFilename
+        public IEnumerable< string > ModelFilenames
         {
-            get { return (_Model.Filename); }
+            get { return (_Model.Filenames); }
         }
         public NGramsType NGramsType
         {

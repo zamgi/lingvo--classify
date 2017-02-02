@@ -89,12 +89,15 @@ namespace lingvo.classify
                 var modelDictionaryNative = new Dictionary< IntPtr, float[] >( Math.Max( config.RowCapacity, 1000 ), 
                                                                                default(IntPtrEqualityComparer) );
 
-                LoadModelFilenameContentMMF( config.Filename, delegate( ref ModelRow row )  
+                foreach ( var filename in config.Filenames )
                 {
-                    var textPtr = AllocHGlobalAndCopy( row.TextPtr, row.TextLength );
-                    var weightClasses = row.WeightClasses.ToArray();
-                    modelDictionaryNative.Add( textPtr, weightClasses );
-                } );
+                    LoadModelFilenameContentMMF( filename, delegate( ref ModelRow row )  
+                    {
+                        var textPtr = AllocHGlobalAndCopy( row.TextPtr, row.TextLength );
+                        var weightClasses = row.WeightClasses.ToArray();
+                        modelDictionaryNative.Add( textPtr, weightClasses );
+                    } );
+                }
 
                 return (modelDictionaryNative);
             }

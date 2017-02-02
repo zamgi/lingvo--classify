@@ -20,10 +20,10 @@ namespace lingvo.classify
         protected ModelBase( ModelConfig config )
         {
             config.ThrowIfNull( "config" );
-            config.Filename.ThrowIfNullOrWhiteSpace( "config.Filename" );
+            config.Filenames.ThrowIfNullOrWhiteSpaceAnyElement( "config.Filenames" );
 
             NGramsType = config.NGramsType;
-            Filename   = config.Filename;
+            Filenames  = config.Filenames.ToArray();
         }
 
         public NGramsType NGramsType
@@ -31,7 +31,7 @@ namespace lingvo.classify
             get;
             protected set;
         }
-        public string     Filename
+        public IEnumerable< string > Filenames
         {
             get;
             protected set;
