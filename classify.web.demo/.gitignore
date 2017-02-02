@@ -1,0 +1,3 @@
+/bin/*.pdb
+/obj/*
+*.csproj.user
