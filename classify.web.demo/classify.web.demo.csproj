@@ -76,10 +76,10 @@
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="[resources]\classify-model-%28tfidf-3-1%29--1.txt" />
-    <Content Include="[resources]\classify-model-%28tfidf-3-1%29--2.txt" />
-    <Content Include="[resources]\classify-model-%28tfidf-3-1%29--3.txt" />
-    <Content Include="[resources]\url-detector-resources.xml" />
+    <Content Include="[resources-4-appharbor.com]\classify-model-%28tfidf-3-1%29--1.txt" />
+    <Content Include="[resources-4-appharbor.com]\classify-model-%28tfidf-3-1%29--2.txt" />
+    <Content Include="[resources-4-appharbor.com]\classify-model-%28tfidf-3-1%29--3.txt" />
+    <Content Include="[resources-4-appharbor.com]\url-detector-resources.xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AntiBotHelper.cs" />
