@@ -76,7 +76,9 @@
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="[resources]\classify-model-%28tfidf-3-1%29.txt" />
+    <Content Include="[resources]\classify-model-%28tfidf-3-1%29--1.txt" />
+    <Content Include="[resources]\classify-model-%28tfidf-3-1%29--2.txt" />
+    <Content Include="[resources]\classify-model-%28tfidf-3-1%29--3.txt" />
     <Content Include="[resources]\url-detector-resources.xml" />
   </ItemGroup>
   <ItemGroup>

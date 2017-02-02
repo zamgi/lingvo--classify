@@ -370,4 +370,38 @@ namespace lingvo.classify.modelbuilder
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
         }
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    internal static class TxtModelSplitterBySize
+    {
+        public static IList< string > SplitBySize( string modelFileName, string outputFolder, int maxFileSizeInBytes )
+        {
+            var lines = File.ReadAllLines( modelFileName );
+            var fileNumber = 0;
+            var outputFileNames = new List< string >();
+            for ( var i = 0; i < lines.Length; i++ )
+            {
+                var outputFileName = Path.Combine( outputFolder, 
+                                                   Path.GetFileNameWithoutExtension( modelFileName ) + "--" + 
+                                                   (++fileNumber) + Path.GetExtension( modelFileName ) );
+                outputFileNames.Add( outputFileName );
+
+                using ( var sw = new StreamWriter( outputFileName ) )
+                {
+                    for ( ; i < lines.Length; i++ )
+                    {
+                        var line = lines[ i ];
+                        sw.WriteLine( line );
+                        if ( maxFileSizeInBytes <= sw.BaseStream.Length )
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+            return (outputFileNames);
+        }
+    }
 }
