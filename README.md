@@ -1,6 +1,6 @@
 # lingvo--classify
 
-<!-- <a target="_blank" href="http://cls.apphb.com/index.html">[ live demo ]</a> -->
+<a target="_blank" href="http://cls.apphb.com/index.html">[ live demo ]</a>
 
 <div style="padding: 20px">
                         <p>
