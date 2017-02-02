@@ -22,9 +22,9 @@
                         <p>
                         В нашем модуле автоматической классификации используется популярный метод опорных векторов (или SVM – Support Vector Machine)
 						с мерой TFiDF.  Модель в демо версии обучена на нескольких классах, определенных заранее:
-                        <ol style="font: italic 1em Georgia, Times, serif; color: #999999;">
-                            <li style="padding: 0; margin: 0 15px 0 30px;"><p style="font: normal 1em Helvetica, sans-serif; color: #000000; margin: 0;">Авто</p></li>
-                            <li style="padding: 0; margin: 0 15px 0 30px;"><p style="font: normal 1em Helvetica, sans-serif; color: #000000; margin: 0;">Экономика и бизнес</p></li>
+                        <ol>
+                            <li><p>Авто</p></li>
+                            <li><p>Экономика и бизнес</p></li>
                             <li><p>Шоу-бизнес и развлечения</p></li>
                             <li><p>Семья</p></li>
                             <li><p>Мода</p></li>
