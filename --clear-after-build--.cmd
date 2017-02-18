@@ -1,6 +1,6 @@
-del "*.suo" /Q/A
+del "*.suo" /S/Q/F/A
+del "*.csproj.user" /S/Q/F/A
 del "classify.web.demo\bin\*.pdb" /Q
-del "classify.web.demo\*.csproj.user" /Q
 rd "classify.web.demo\obj" /S/Q
 rd "classify\bin" /S/Q
 rd "classify\obj" /S/Q
