@@ -309,7 +309,7 @@ namespace lingvo.classify
         private readonly double[]                  _ScalarProducts;
         private readonly ClassifyInfo[]            _ClassInfo;
         private readonly Dictionary< string, int > _TextTFDictionary;
-        private readonly classify_tokenizer        _Tokenizer;
+        private readonly ClassifyTokenizer        _Tokenizer;
         #endregion
 
         #region [.ctor().]
@@ -322,7 +322,7 @@ namespace lingvo.classify
             #endregion
 
             _Model            = model;
-            _Tokenizer        = new classify_tokenizer( config.UrlDetectorModel );
+            _Tokenizer        = new ClassifyTokenizer( config.UrlDetectorModel );
             _ScalarProducts   = new double[ _Model.TotalClassCount ];            
             _TextTFDictionary = new Dictionary< string, int >( TEXT_TF_DICTIONARY_CAPACITY );
             _ClassInfo        = new ClassifyInfo[ _Model.TotalClassCount ];

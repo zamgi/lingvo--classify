@@ -66,8 +66,8 @@
     <Reference Include="System.Configuration" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\classify\Tokenizing\classify_tokenizer.cs">
-      <Link>Tokenizing\classify_tokenizer.cs</Link>
+    <Compile Include="..\classify\Tokenizing\ClassifyTokenizer.cs">
+      <Link>ClassifyTokenizer.cs</Link>
     </Compile>
     <Compile Include="..\classify\Tokenizing\UrlDetector.cs">
       <Link>Tokenizing\UrlDetector.cs</Link>

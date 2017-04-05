@@ -51,7 +51,7 @@
     <Compile Include="Models\IModel.cs" />
     <Compile Include="Infrastructure\VectorsArithmetic.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Tokenizing\classify_tokenizer.cs" />
+    <Compile Include="Tokenizing\ClassifyTokenizer.cs" />
     <Compile Include="Tokenizing\StringsHelper.cs" />
     <Compile Include="Tokenizing\UrlDetector.cs" />
     <Compile Include="Tokenizing\xlat.cs" />

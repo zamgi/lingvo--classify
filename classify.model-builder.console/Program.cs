@@ -236,7 +236,7 @@ namespace lingvo.classify.modelbuilder
 
             #region [.-0-.]
             var _tfidf    = new tfidf( bp.Ngrams, bp.D_param );
-            var tokenizer = new classify_tokenizer( bp.UrlDetectorModel );
+            var tokenizer = new ClassifyTokenizer( bp.UrlDetectorModel );
             #endregion
 
             #region [.-1-.]
@@ -265,7 +265,7 @@ namespace lingvo.classify.modelbuilder
 				}
                 
                 _tfidf.BeginAddDocument();
-                tokenizer.run( text, (word) =>
+                tokenizer.Run( text, (word) =>
                 {
                     _tfidf.AddDocumentWord( word );
                 });

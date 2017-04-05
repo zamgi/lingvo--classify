@@ -182,33 +182,34 @@ namespace lingvo.urls
         private char*                         _Ptr;  //current pointer into text
         #endregion
 
+        #region [.ctor().]
         public UrlDetector( UrlDetectorConfig config )
         {
             _ExtractValue = (config.UrlExtractMode == UrlExtractModeEnum.ValueAndPosition);
 
-            _FirstLevelDomains          = config.Model.FirstLevelDomains;
+            _FirstLevelDomains = config.Model.FirstLevelDomains;
             _FirstLevelDomainsMaxLength = config.Model.FirstLevelDomainsMaxLength;
 
-            _URIschemes                 = config.Model.URIschemes;
-            _URIschemesMaxLength        = config.Model.URIschemesMaxLength;
+            _URIschemes = config.Model.URIschemes;
+            _URIschemesMaxLength = config.Model.URIschemesMaxLength;
 
-            _Urls                       = new List< url_t >( DEFAULT_LIST_CAPACITY );            
-            _StringBuilder              = new StringBuilder();
-            _Url                        = new url_t();
-            _Urlstructs                 = new List< url_struct_t >( DEFAULT_LIST_CAPACITY );
-			
+            _Urls = new List<url_t>( DEFAULT_LIST_CAPACITY );
+            _StringBuilder = new StringBuilder();
+            _Url = new url_t();
+            _Urlstructs = new List<url_struct_t>( DEFAULT_LIST_CAPACITY );
+
             _CTM = xlat_Unsafe.Inst._CHARTYPE_MAP;
             _UIM = xlat_Unsafe.Inst._UPPER_INVARIANT_MAP;
 
             //-1-
-            _FirstLevelDomainBuffer         = new char[ _FirstLevelDomainsMaxLength + 1 ];
+            _FirstLevelDomainBuffer = new char[ _FirstLevelDomainsMaxLength + 1 ];
             _FirstLevelDomainBufferGCHandle = GCHandle.Alloc( _FirstLevelDomainBuffer, GCHandleType.Pinned );
-            _FldBufferPtrBase               = (char*) _FirstLevelDomainBufferGCHandle.AddrOfPinnedObject().ToPointer();
+            _FldBufferPtrBase = (char*) _FirstLevelDomainBufferGCHandle.AddrOfPinnedObject().ToPointer();
 
             //-2-
-            _URIschemesBuffer         = new char[ _URIschemesMaxLength + 1 ];
+            _URIschemesBuffer = new char[ _URIschemesMaxLength + 1 ];
             _URIschemesBufferGCHandle = GCHandle.Alloc( _URIschemesBuffer, GCHandleType.Pinned );
-            _UriSchBufferPtrBase      = (char*) _URIschemesBufferGCHandle.AddrOfPinnedObject().ToPointer();
+            _UriSchBufferPtrBase = (char*) _URIschemesBufferGCHandle.AddrOfPinnedObject().ToPointer();
         }
 
         ~UrlDetector()
@@ -234,7 +235,8 @@ namespace lingvo.urls
                 _URIschemesBufferGCHandle.Free();
                 _UriSchBufferPtrBase = null;
             }
-        }
+        } 
+        #endregion
 
         unsafe public List< url_t > AllocateUrls( string text )
         {

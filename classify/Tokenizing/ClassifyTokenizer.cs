@@ -28,7 +28,7 @@ namespace lingvo.tokenizing
     /// <summary>
     /// 
     /// </summary>
-    unsafe internal class classify_tokenizer : IDisposable
+    unsafe internal class ClassifyTokenizer : IDisposable
     {
         /// <summary>
         /// 
@@ -122,14 +122,14 @@ namespace lingvo.tokenizing
         private int                     _WordToUpperBufferSize;
         private GCHandle                _WordToUpperBufferGCHandle;
         private char*                   _WordToUpperBufferPtrBase;
-        private Action< string >        _AddWordtoListAction;
+        private Action< string >        _AddWordToListAction;
         #endregion
 
         #region [.ctor().]
-        public classify_tokenizer( UrlDetectorModel urlModel ) : this( urlModel, DEFAULT_WORDCAPACITY )
+        public ClassifyTokenizer( UrlDetectorModel urlModel ) : this( urlModel, DEFAULT_WORDCAPACITY )
         {
         }
-        public classify_tokenizer( UrlDetectorModel urlModel, int wordCapacity )
+        public ClassifyTokenizer( UrlDetectorModel urlModel, int wordCapacity )
         {
             var urlConfig = new UrlDetectorConfig()
             {
@@ -139,7 +139,7 @@ namespace lingvo.tokenizing
             _UrlDetector = new UrlDetector( urlConfig );
             _Words       = new List< string >( Math.Max( DEFAULT_WORDCAPACITY, wordCapacity ) );
             _NgramsSB    = new StringBuilder();
-            _AddWordtoListAction = new Action< string >( addWordtoList );
+            _AddWordToListAction = new Action< string >( AddWordToList );
 
             _UIM = xlat_Unsafe.Inst._UPPER_INVARIANT_MAP;
             _CTM = xlat_Unsafe.Inst._CHARTYPE_MAP;
@@ -160,7 +160,7 @@ namespace lingvo.tokenizing
             _WordToUpperBufferPtrBase  = (char*) _WordToUpperBufferGCHandle.AddrOfPinnedObject().ToPointer();
         }
 
-        ~classify_tokenizer()
+        ~ClassifyTokenizer()
         {
             DisposeNativeResources();
         }
@@ -180,18 +180,18 @@ namespace lingvo.tokenizing
         }
         #endregion
 
-        public IList< string > run( string text )
+        public IList< string > Run( string text )
         {
             _Words.Clear();
-            run( text, _AddWordtoListAction );
+            Run( text, _AddWordToListAction );
             return (_Words);
         }
-        private void addWordtoList( string word )
+        private void AddWordToList( string word )
         {
             _Words.Add( word );
         }
 
-        public void run( string text, Action< string > processWordAction )
+        public void Run( string text, Action< string > processWordAction )
         {
             _StartIndex = 0;
             _Length     = 0;
@@ -464,7 +464,7 @@ var xxx = new string ( _BASE, url.startIndex, url.length );
         }
         public void FillHashset( HashSet< string > hs, string text, NGramsType ngramsType )
         {
-            var terms = run( text ); //Tokenizer.ParseText( text );
+            var terms = Run( text ); //Tokenizer.ParseText( text );
 
             hs.Clear();
             //NGramsType.NGram_1:
@@ -627,7 +627,7 @@ var xxx = new string ( _BASE, url.startIndex, url.length );
 
 		public void Fill_TF_Dictionary( Dictionary< string, int > tfDictionary, string text, NGramsType ngramsType )
         {
-            var terms = run( text );
+            var terms = Run( text );
 
             tfDictionary.Clear();
             var count = default(int);
