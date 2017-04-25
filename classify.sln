@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "classify", "classify\classify.csproj", "{2F8EBE38-1B20-47D7-8EE5-B644E2E1E3B9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "captcha", "captcha\captcha.csproj", "{ADA45B0D-9218-4E16-880D-825D022A5684}"
@@ -9,6 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "classify.web.demo", "classi
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "[lib]", "[lib]", "{3224ADAF-FA72-4844-BEF4-1CD85DF8DD67}"
 	ProjectSection(SolutionItems) = preProject
+		[lib]\log4net.dll = [lib]\log4net.dll
 		[lib]\Newtonsoft.Json.dll = [lib]\Newtonsoft.Json.dll
 	EndProjectSection
 EndProject

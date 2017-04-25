@@ -160,7 +160,7 @@ h2.h-head { font-size:18px; background:#E6E6E6 url("../images/bg-h2.gif") repeat
 .demo-header {font-size: 0.8em;}
 .description-header {font-size: 0.8em; float:right;}
 .line {margin-top: 3px; border-bottom: 1px dashed #CDCDCD;}
-#text {padding: 5px; resize: none;}
+#text {padding: 5px 15px; resize: none;}
 #text.no-change {background-color: #eee;}
 .result-info {width: 630px; min-height: 20px; margin: 10px auto; text-align: center; color: #313131;}
 .result-info.error {color: #f00;}

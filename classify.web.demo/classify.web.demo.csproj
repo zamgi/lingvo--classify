@@ -30,6 +30,7 @@
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -51,6 +52,9 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net">
+      <HintPath>..\[lib]\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\[lib]\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -82,7 +86,9 @@
     <Content Include="[resources-4-appharbor.com]\url-detector-resources.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AntiBotHelper.cs" />
+    <Compile Include="App_Code\AntiBotHelper.cs" />
+    <Compile Include="App_Code\Config.cs" />
+    <Compile Include="App_Code\Log.cs" />
     <Compile Include="Captcha.aspx.cs">
       <DependentUpon>Captcha.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -94,7 +100,7 @@
     <Compile Include="RESTProcessHandler.ashx.cs">
       <DependentUpon>RESTProcessHandler.ashx</DependentUpon>
     </Compile>
-    <Compile Include="ConcurrentFactory.cs" />
+    <Compile Include="App_Code\ConcurrentFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="RESTProcessHandler.ashx" />
