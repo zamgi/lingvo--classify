@@ -104,7 +104,7 @@ $(document).ready(function () {
 
     function processing_start(){
         $('#text').addClass('no-change').attr('readonly', 'readonly').attr('disabled', 'disabled');
-        $('.result-info').show().removeClass('error').text('Идет обработка... <label id="processingTickLabel"></label>');
+        $('.result-info').show().removeClass('error').html('Идет обработка... <label id="processingTickLabel"></label>');
         $('#processButton').addClass('disabled');
         $('#processResult tbody').empty();
         setTimeout(processing_tick, 1000);
