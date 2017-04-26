@@ -1,15 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Runtime;
 using System.Web;
 
 using Newtonsoft.Json;
-using lingvo.tokenizing;
-using System.Text;
 
 namespace lingvo.classify
 {
