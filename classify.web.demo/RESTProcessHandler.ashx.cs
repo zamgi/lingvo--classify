@@ -154,7 +154,7 @@ namespace lingvo.classify
                 {
                     antiBot.SendGotoOnCaptchaJsonResponse();
                     return;
-                }                
+                }
                 #endregion
 
                 text = context.GetRequestStringParam( "text", Config.MAX_INPUTTEXT_LENGTH );

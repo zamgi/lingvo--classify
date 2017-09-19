@@ -64,37 +64,40 @@ namespace lingvo.tokenizing
             private UnsafeConst()
             {
                 //-1-//
-                var INTERPRETE_AS_WHITESPACE = new bool[ char.MaxValue - char.MinValue ];
-                fixed ( bool* iaw_base = INTERPRETE_AS_WHITESPACE )        
+                var INTERPRETE_AS_WHITESPACE = new bool[ char.MaxValue - char.MinValue + 1 ];
+                var DIGIT_WORD_CHARS         = new bool[ char.MaxValue - char.MinValue + 1 ];
+
+                fixed ( bool* iaw_base = INTERPRETE_AS_WHITESPACE )
+                fixed ( bool* dwc_base = DIGIT_WORD_CHARS )
                 {
-                    for ( var c = char.MinValue; c < char.MaxValue; c++ )
+                    for ( var c = char.MinValue; ; c++ )
                     {
-                        *(iaw_base + c) = /*char.IsWhiteSpace( c ) ||*/ char.IsPunctuation( c );
+                        iaw_base[ c ] = /*char.IsWhiteSpace( c ) ||*/ char.IsPunctuation( c );
+                        dwc_base[ c ] = char.IsDigit( c );
+
+                        if ( c == char.MaxValue )
+                        {
+                            break;
+                        }
                     }
 
                     foreach ( var c in INCLUDE_INTERPRETE_AS_WHITESPACE )
                     {
-                        *(iaw_base + c) = true;
+                        iaw_base[ c ] = true;
                     }
-
                     foreach ( var c in EXCLUDE_INTERPRETE_AS_WHITESPACE )
                     {
-                        *(iaw_base + c) = false;
+                        iaw_base[ c ] = false;
+                    }
+
+                    foreach ( var c in INCLUDE_DIGIT_WORD_CHARS )
+                    {
+                        dwc_base[ c ] = true;
                     }
                 }
+
                 var INTERPRETE_AS_WHITESPACE_GCHandle = GCHandle.Alloc( INTERPRETE_AS_WHITESPACE, GCHandleType.Pinned );
                 _INTERPRETE_AS_WHITESPACE = (bool*) INTERPRETE_AS_WHITESPACE_GCHandle.AddrOfPinnedObject().ToPointer();
-
-                //-2-//
-                var DIGIT_WORD_CHARS = new bool[ char.MaxValue - char.MinValue ];
-                for ( var c = char.MinValue; c < char.MaxValue; c++ )
-                {
-                    DIGIT_WORD_CHARS[ c ] = char.IsDigit( c );
-                }
-                foreach ( var c in INCLUDE_DIGIT_WORD_CHARS )
-                {
-                    DIGIT_WORD_CHARS[ c ] = true;
-                }
 
                 var DIGIT_WORD_CHARS_GCHandle = GCHandle.Alloc( DIGIT_WORD_CHARS, GCHandleType.Pinned );
                 _DIGIT_WORD_CHARS = (bool*) DIGIT_WORD_CHARS_GCHandle.AddrOfPinnedObject().ToPointer();
