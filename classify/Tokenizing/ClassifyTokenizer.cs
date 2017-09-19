@@ -64,8 +64,8 @@ namespace lingvo.tokenizing
             private UnsafeConst()
             {
                 //-1-//
-                var INTERPRETE_AS_WHITESPACE = new bool[ char.MaxValue - char.MinValue + 1 ];
-                var DIGIT_WORD_CHARS         = new bool[ char.MaxValue - char.MinValue + 1 ];
+                var INTERPRETE_AS_WHITESPACE = new bool[ char.MaxValue + 1 ];
+                var DIGIT_WORD_CHARS         = new bool[ char.MaxValue + 1 ];
 
                 fixed ( bool* iaw_base = INTERPRETE_AS_WHITESPACE )
                 fixed ( bool* dwc_base = DIGIT_WORD_CHARS )
