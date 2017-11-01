@@ -37,8 +37,9 @@ h2, h3 { font-weight: bold; text-align:center; }
 h2.h-head { font-size:18px; background:#E6E6E6; line-height:30px; padding-left:7px; font-weight:normal; margin-bottom:3px; }
 
 #wrapper { margin:20px auto; width:1004px; overflow:hidden; border: 1px solid silver; border-top-color: #e0e0e0; border-radius: 3px; }
+#superMainWrapper { background-color: whitesmoke; }
 #mainWrapper { width:100%; position:relative; }
-#main { width:956px; background:#FFFFFF; position:relative; right: -6px; padding: 20px 18px;}
+#main { width:956px; position:relative; right: -6px; padding: 20px 18px;}
 
 #processButton {background-color: black;color: white; width: 220px;}
     #processButton:hover { background-color: #252525; }
