@@ -37,7 +37,7 @@ h2, h3 { font-weight: bold; text-align:center; }
 h2.h-head { font-size:18px; background:#E6E6E6; line-height:30px; padding-left:7px; font-weight:normal; margin-bottom:3px; }
 
 #wrapper { margin:20px auto; width:1004px; overflow:hidden; border: 1px solid silver; border-top-color: #e0e0e0; border-radius: 3px; }
-#superMainWrapper { background-color: whitesmoke; }
+#superMainWrapper { background-color: #f3f3f3; }
 #mainWrapper { width:100%; position:relative; }
 #main { width:956px; position:relative; right: -6px; padding: 20px 18px;}
 
@@ -67,6 +67,7 @@ h2.h-head { font-size:18px; background:#E6E6E6; line-height:30px; padding-left:7
 #processResult table {width: 400px; margin: 0 auto;}
 #processResult table td {width: 30%; padding: 5px 0; border: 1px solid #aaa; text-align: center;}
 #textLength { position: absolute; left: 35px; font-size: xx-small; white-space: nowrap; cursor: default; }
+#textLength.max-inputtext-length { color: red; } 
 
 #resetText2Default {
     float: right;
