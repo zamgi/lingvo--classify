@@ -10,18 +10,9 @@ body, input, textarea { font-family: sans-serif; color: #222; }
 b { font-weight: bold; }
 hr { display: block; height: 1px; border: 0; border-top: 1px solid #ccc; margin: 1em 0; padding: 0; }
 ol { margin: 1em 0; padding: 0; }
-ol {
-  font: italic 1em Georgia, Times, serif;
-  color: #999999;
-}
-    ol li {
-      padding: 0; margin: 0 15px 0 30px;      
-    }
-    ol p {
-      font: normal 1em Helvetica, sans-serif;
-      color: #000000;
-      margin: 0;
-    }
+ol { font: italic 1em Georgia, Times, serif; color: #999999;}
+    ol li { padding: 0; margin: 0 15px 0 30px; }
+    ol p { font: normal 1em Helvetica, sans-serif; color: #000000; margin: 0; }
 input, textarea { font-size: 100%; margin: 0; vertical-align: baseline; *vertical-align: middle; }
 input { line-height: normal; *overflow: visible; }
 input[type="submit"] { cursor: pointer; -webkit-appearance: button; }
@@ -71,7 +62,6 @@ h2.h-head { font-size:18px; background:#E6E6E6; line-height:30px; padding-left:7
 
 #resetText2Default {
     float: right;
-    /*font-weight: bold;*/
     font-size: 14px;
     font-family: monospace;
     border: 1px lightgray solid;
@@ -99,9 +89,9 @@ h2.h-head { font-size:18px; background:#E6E6E6; line-height:30px; padding-left:7
 ::-webkit-scrollbar-thumb {
     -webkit-border-radius: 3px;
     border-radius: 3px;
-    background: #ccc/*rgba(255,0,0,0.8)*/; 
+    background: #ccc; 
     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
 }
 ::-webkit-scrollbar-thumb:window-inactive {
-	background: #eee/*rgba(255,0,0,0.4)*/; 
+	background: #eee; 
 }
