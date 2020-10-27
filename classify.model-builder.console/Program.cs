@@ -292,7 +292,7 @@ namespace lingvo.classify.modelbuilder
             #endregion
 			
 			#region [.-2-.]
-            Console.WriteLine( "start process TFiDF..." );
+            Console.Write( "start process TFiDF..." );
 
             var _tfidf_result = default(tfidf.result);
             switch ( bp.Method )
@@ -316,7 +316,7 @@ namespace lingvo.classify.modelbuilder
             #endregion
 
             #region [.-3-.]
-            Console.WriteLine( "start write result..." );
+            Console.Write( "start write result..." );
             var fi = new FileInfo( bp.OutputFilenamePattern );
             if ( !fi.Directory.Exists ) fi.Directory.Create();           
 			var outputFile = Path.Combine( fi.DirectoryName, fi.Name.Substring( 0, fi.Name.Length - fi.Extension.Length ) +
