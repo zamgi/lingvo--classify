@@ -305,11 +305,11 @@ namespace lingvo.classify
         #endregion
 
         #region [.private field's.]
-        private readonly IModel          _Model;
+        private readonly IModel                    _Model;
         private readonly double[]                  _ScalarProducts;
         private readonly ClassifyInfo[]            _ClassInfo;
         private readonly Dictionary< string, int > _TextTFDictionary;
-        private readonly ClassifyTokenizer        _Tokenizer;
+        private readonly ClassifyTokenizer         _Tokenizer;
         #endregion
 
         #region [.ctor().]
@@ -355,7 +355,7 @@ namespace lingvo.classify
             get { return (_Model.TotalClassCount); }
         }
 
-        public ClassifyInfo[] MakeClassify( string text )
+        public IList< ClassifyInfo > MakeClassify( string text )
         {
             #region [.-prepare-.]
             var model = _Model;
@@ -410,7 +410,7 @@ namespace lingvo.classify
 
                 var classifyInfo = _ClassInfo.OrderByDescending( _GetClassifyInfoCosineFunc )
                                              .Where( _IsClassifyInfoCosineValidFunc )
-                                             .ToArray();
+                                             .ToList( totalClassCount );
                 return (classifyInfo);
             }
             #endregion

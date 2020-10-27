@@ -148,7 +148,7 @@ namespace lingvo.classify
                             weightClassesFloatPtr[ i ] = row.WeightClasses[ i ];
                         }
                         modelDictionaryNative.Add( textPtr, weightClassesPtr );
-                    } );
+                    });
                 }
 
                 return (modelDictionaryNative);

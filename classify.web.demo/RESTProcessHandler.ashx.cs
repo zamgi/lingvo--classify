@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime;
 using System.Web;
@@ -8,7 +9,7 @@ using Newtonsoft.Json;
 namespace lingvo.classify
 {
     /// <summary>
-    /// Summary description for RESTProcessHandler
+    /// 
     /// </summary>
     public sealed class RESTProcessHandler : IHttpHandler
     {
@@ -22,30 +23,15 @@ namespace lingvo.classify
             /// </summary>
             public struct classify_info
             {
-                [JsonProperty(PropertyName="i")] public int    class_index
-                {
-                    get;
-                    set;
-                }
-                [JsonProperty(PropertyName="n")] public string class_name
-                {
-                    get;
-                    set;
-                }
-                [JsonProperty(PropertyName="p")] public string percent
-                {
-                    get;
-                    set;
-                }
+                [JsonProperty(PropertyName="i")] public int    class_index { get; set; }
+                [JsonProperty(PropertyName="n")] public string class_name  { get; set; }
+                [JsonProperty(PropertyName="p")] public string percent     { get; set; }
             }
 
-            public result( Exception ex ) : this()
+            public result( Exception ex ) : this() { exception_message = ex.Message; }
+            public result( IList< ClassifyInfo > classifyInfos, double classThresholdPercent ) : this()
             {
-                exception_message = ex.Message;
-            }
-            public result( ClassifyInfo[] classifyInfos, double classThresholdPercent ) : this()
-            {
-                if ( classifyInfos != null && classifyInfos.Length != 0 )
+                if ( classifyInfos != null && classifyInfos.Count != 0 )
                 {
                     var sum = classifyInfos.Sum( ci => ci.Cosine );
                     classify_infos = (from ci in classifyInfos
@@ -62,18 +48,8 @@ namespace lingvo.classify
                 }
             }
 
-            [JsonProperty(PropertyName="classes")]
-            public classify_info[] classify_infos
-            {
-                get;
-                private set;
-            }
-            [JsonProperty(PropertyName="err")]
-            public string          exception_message
-            {
-                get;
-                private set;
-            }
+            [JsonProperty(PropertyName="classes")] public classify_info[] classify_infos    { get; private set; }
+            [JsonProperty(PropertyName="err")    ] public string          exception_message { get; private set; }
         }
 
         /// <summary>
@@ -131,10 +107,7 @@ namespace lingvo.classify
             }
         }
 
-        public bool IsReusable
-        {
-            get { return (true); }
-        }
+        public bool IsReusable { get { return (true); } }
 
         public void ProcessRequest( HttpContext context )
         {
@@ -175,7 +148,7 @@ namespace lingvo.classify
             }
         }
 
-        private static void SendJsonResponse( HttpContext context, ClassifyInfo[] classifyInfos, double classThresholdPercent )
+        private static void SendJsonResponse( HttpContext context, IList< ClassifyInfo > classifyInfos, double classThresholdPercent )
         {
             SendJsonResponse( context, new result( classifyInfos, classThresholdPercent ) );
         }

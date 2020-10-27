@@ -41,7 +41,7 @@ namespace lingvo.core
             }
         }
         */
-        public static void ThrowIfNullOrWhiteSpaceAnyElement( this IEnumerable< string > sequence, string paramName )
+        public static void ThrowIfNullOrWhiteSpaceAnyElement( this IEnumerable<string> sequence, string paramName )
         {
             if ( sequence == null )
                 throw (new ArgumentNullException( paramName ));
@@ -61,5 +61,25 @@ namespace lingvo.core
         {
             return (string.IsNullOrEmpty( text ));
         }
+
+        public static List< T > ToList< T >( this IEnumerable< T > seq, int capacity )
+        {
+            var lst = new List< T >( capacity );
+            foreach ( var t in seq )
+            {
+                lst.Add( t );
+            }
+            return (lst);
+        }
+        /*public static T[] ToArray< T >( this IEnumerable< T > seq, int size )
+        {
+            var array = new T[ size ];
+            var i = 0;
+            foreach ( var t in seq )
+            {
+                array[ i++ ] = t;
+            }
+            return (array);
+        }*/
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.Globalization;
 
 namespace lingvo.classify
@@ -26,6 +26,6 @@ namespace lingvo.classify
     {
         int TotalClassCount { get; }
 
-        ClassifyInfo[] MakeClassify( string text );
+        IList< ClassifyInfo > MakeClassify( string text );
     }
 }

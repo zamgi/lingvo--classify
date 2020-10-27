@@ -180,7 +180,7 @@ namespace lingvo.classify
                 var start = _Buffer;
                 for ( long currentIndex = 0, endIndex = _EndBuffer - start; currentIndex <= endIndex; currentIndex++ )
                 {
-                    if ( start [ currentIndex ] == NEW_LINE )
+                    if ( start[ currentIndex ] == NEW_LINE )
                     {
                         #region [.line.]
                         int len = (int) currentIndex;

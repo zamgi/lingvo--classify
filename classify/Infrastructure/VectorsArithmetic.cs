@@ -54,7 +54,7 @@ namespace lingvo.classify
             double scalar_product = 0;
             foreach ( var value in values )
             {
-                var weightClassesBytePtr = ((byte*) value) + 1;
+                var weightClassesBytePtr  = ((byte*) value) + 1;
                 var weightClassesFloatPtr = (float*) weightClassesBytePtr;
 
                 var f = weightClassesFloatPtr[ classIndex ];

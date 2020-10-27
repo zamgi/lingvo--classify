@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace lingvo.classify
@@ -26,11 +27,11 @@ namespace lingvo.classify
 			}			
 		}
 
-        public ClassifyInfo[] MakeClassify( string text )
+        public IList< ClassifyInfo > MakeClassify( string text )
 		{
 			_Semaphore.WaitOne();
 			var worker = default(Classifier);
-			var result = default(ClassifyInfo[]);
+			var result = default(IList< ClassifyInfo >);
 			try
 			{
                 worker = Pop( _Stack );

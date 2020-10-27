@@ -123,10 +123,12 @@ namespace lingvo.classify.modelbuilder
                 #region [.use boost priority.]
                 if ( USE_BOOST_PRIORITY )
 				{
-					var pr = Process.GetCurrentProcess();
-					pr.PriorityClass = ProcessPriorityClass.RealTime;
-					pr.PriorityBoostEnabled = true;
-					Thread.CurrentThread.Priority = ThreadPriority.Highest;
+                    using ( var p = Process.GetCurrentProcess() )
+                    {
+                        p.PriorityClass        = ProcessPriorityClass.RealTime;
+                        p.PriorityBoostEnabled = true;
+                        Thread.CurrentThread.Priority = ThreadPriority.Highest;
+                    }
 				}
                 #endregion
 
@@ -155,9 +157,7 @@ namespace lingvo.classify.modelbuilder
                 }
                 else
                 {
-                    var tuples = (BUILD_MODE == BuildModeEnum.all_models_by_method) 
-                                 ? GetProcessParams( METHOD ) 
-                                 : GetProcessParams();
+                    var tuples = (BUILD_MODE == BuildModeEnum.all_models_by_method) ? GetProcessParams( METHOD ) : GetProcessParams();
 
                     #region [.build model's.]
                     var sw_total = Stopwatch.StartNew();
@@ -242,7 +242,7 @@ namespace lingvo.classify.modelbuilder
             #region [.-1-.]
             foreach ( var inputFilename in bp.InputFilenames )
             {
-                Console.WriteLine( "start process file: '" + new FileInfo( inputFilename ).Name + "'..." );
+                Console.Write( "start process file: '" + new FileInfo( inputFilename ).Name + "'..." );
 
                 var fileName = Path.Combine( bp.InputFolder, inputFilename );
                 var text = File.ReadAllText( fileName, INPUT_ENCODING );
