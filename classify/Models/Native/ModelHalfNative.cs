@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 
 using lingvo.core;
 
@@ -15,36 +14,35 @@ namespace lingvo.classify
     public sealed class ModelHalfNative : ModelNativeBase, IModel, IDisposable
     {
         #region [.private field's.]
-        private Dictionary< IntPtr, float[] > _DictionaryNative; 
+        private Dictionary< IntPtr, float[] > _DictionaryNative;
+        private NativeMemAllocationMediator _NativeMemAllocator;
         #endregion
 
         #region [.ctor().]
         public ModelHalfNative( ModelConfig config ) : base( config )
         {
-            _DictionaryNative = ModelHalfNativeLoader.LoadDictionaryNative( config );
+            _NativeMemAllocator = new NativeMemAllocationMediator( nativeBlockAllocSize: 1024 * 512 );
+            _DictionaryNative = ModelHalfNativeLoader.LoadDictionaryNative( config, _NativeMemAllocator );
             base.Initialize( _DictionaryNative );
         }
-        ~ModelHalfNative()
-        {
-            DisposeNativeResources();
-        }
-
+        ~ModelHalfNative() => DisposeNativeResources();
         public override void Dispose()
         {
             DisposeNativeResources();
-
             GC.SuppressFinalize( this );
         }
         private void DisposeNativeResources()
         {
-            if ( _DictionaryNative != null )
-            {
-                foreach ( var ptr in _DictionaryNative.Keys )
-                {
-                    Marshal.FreeHGlobal( ptr );
-                }
-                _DictionaryNative = null;
-            }
+            _NativeMemAllocator.Dispose();
+
+            //if ( _DictionaryNative != null )
+            //{
+            //    foreach ( var ptr in _DictionaryNative.Keys )
+            //    {
+            //        Marshal.FreeHGlobal( ptr );
+            //    }
+            //    _DictionaryNative = null;
+            //}
         } 
         #endregion
 
@@ -72,31 +70,27 @@ namespace lingvo.classify
                 public int   TextLength;
                 public ICollection< float > WeightClasses;
 #if DEBUG
-                public override string ToString()
-                {
-                    return (StringsHelper.ToString( TextPtr ) + ", {" + string.Join( "; ", WeightClasses ) + '}');
-                }  
+                public override string ToString() => (StringsHelper.ToString( TextPtr ) + ", {" + string.Join( "; ", WeightClasses ) + '}');
 #endif
             }
 
             /// <summary>
             /// 
             /// </summary>
-            private delegate void LoadModelFilenameContentMMFCallback( ref ModelRow row );
+            private delegate void LoadModelFilenameContentMMFCallback( in ModelRow row );
 
-            public static Dictionary< IntPtr, float[] > LoadDictionaryNative( ModelConfig config )
+            public static Dictionary< IntPtr, float[] > LoadDictionaryNative( ModelConfig config, NativeMemAllocationMediator nativeMemAllocator )
             {
-                var modelDictionaryNative = new Dictionary< IntPtr, float[] >( Math.Max( config.RowCapacity, 1000 ), 
-                                                                               default(IntPtrEqualityComparer) );
+                var modelDictionaryNative = new Dictionary< IntPtr, float[] >( Math.Max( config.RowCapacity, 1000 ), IntPtrEqualityComparer.Inst );
 
                 foreach ( var filename in config.Filenames )
                 {
-                    LoadModelFilenameContentMMF( filename, delegate( ref ModelRow row )  
+                    LoadModelFilenameContentMMF( filename, delegate( in ModelRow row )  
                     {
-                        var textPtr = AllocHGlobalAndCopy( row.TextPtr, row.TextLength );
+                        var textPtr = nativeMemAllocator.AllocAndCopy( row.TextPtr, row.TextLength ); //= AllocHGlobalAndCopy( row.TextPtr, row.TextLength );
                         var weightClasses = row.WeightClasses.ToArray();
                         modelDictionaryNative.Add( textPtr, weightClasses );
-                    } );
+                    });
                 }
 
                 return (modelDictionaryNative);
@@ -266,7 +260,7 @@ namespace lingvo.classify
                         row.TextPtr       = textPtr;
                         row.WeightClasses = weightClasses;                        
 
-                        callbackAction( ref row );
+                        callbackAction( in row );
 
                         //clear weight-classes temp-buffer
                         weightClasses.Clear();

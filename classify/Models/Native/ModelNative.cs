@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 using lingvo.core;
@@ -17,39 +16,25 @@ namespace lingvo.classify
     {
         #region [.private field's.]
         private Dictionary< IntPtr, IntPtr > _DictionaryNative;
-        private float[] _ModelRow;
+        private NativeMemAllocationMediator _NativeMemAllocator;
+        private float[] _ModelRow;        
         #endregion
 
         #region [.ctor().]
         public ModelNative( ModelConfig config ) : base( config )
         {
-            _DictionaryNative = ModelNativeLoader.LoadDictionaryNative( config );
-            //---base.Initialize( _DictionaryNative );
+            _NativeMemAllocator = new NativeMemAllocationMediator( nativeBlockAllocSize: 1024 * 1024 );
+            _DictionaryNative   = ModelNativeLoader.LoadDictionaryNative( config, _NativeMemAllocator );
+            
             InitializeNative( _DictionaryNative );
         }
-        ~ModelNative()
-        {
-            DisposeNativeResources();
-        }
-
+        ~ModelNative() => DisposeNativeResources();
         public override void Dispose()
         {
             DisposeNativeResources();
-
             GC.SuppressFinalize( this );
         }
-        private void DisposeNativeResources()
-        {
-            if ( _DictionaryNative != null )
-            {
-                foreach ( var p in _DictionaryNative )
-                {
-                    Marshal.FreeHGlobal( p.Key   );
-                    Marshal.FreeHGlobal( p.Value );
-                }
-                _DictionaryNative = null;
-            }
-        } 
+        private void DisposeNativeResources() => _NativeMemAllocator.Dispose();
         #endregion
 
         #region [.IClassifierModel.]
@@ -57,8 +42,7 @@ namespace lingvo.classify
         {
             fixed ( char* ngramPtr = ngram )
             {
-                IntPtr weightClassesPtr;
-                if ( _DictionaryNative.TryGetValue( (IntPtr) ngramPtr, out weightClassesPtr ) )
+                if ( _DictionaryNative.TryGetValue( (IntPtr) ngramPtr, out var weightClassesPtr ) )
                 {
                     var weightClassesBytePtr = ((byte*) weightClassesPtr);
                     var countWeightClasses = *weightClassesBytePtr++;
@@ -115,33 +99,30 @@ namespace lingvo.classify
                 public int   TextLength;
                 public IList< float > WeightClasses;
 #if DEBUG
-                public override string ToString()
-                {
-                    return (StringsHelper.ToString( TextPtr ) + ", {" + string.Join( "; ", WeightClasses ) + '}');
-                }  
+                public override string ToString() => (StringsHelper.ToString( TextPtr ) + ", {" + string.Join( "; ", WeightClasses ) + '}');
 #endif
             }
 
             /// <summary>
             /// 
             /// </summary>
-            private delegate void LoadModelFilenameContentMMFCallback( ref ModelRow row );
+            private delegate void LoadModelFilenameContentMMFCallback( in ModelRow row );
 
-            public static Dictionary< IntPtr, IntPtr > LoadDictionaryNative( ModelConfig config )
+            public static Dictionary< IntPtr, IntPtr > LoadDictionaryNative( ModelConfig config, NativeMemAllocationMediator nativeMemAllocator )
             {
-                var modelDictionaryNative = new Dictionary< IntPtr, IntPtr >( Math.Max( config.RowCapacity, 1000 ), 
-                                                                              default(IntPtrEqualityComparer) );
+                var modelDictionaryNative = new Dictionary< IntPtr, IntPtr >( Math.Max( config.RowCapacity, 1000 ), IntPtrEqualityComparer.Inst );
 
                 foreach ( var filename in config.Filenames )
                 {
-                    LoadModelFilenameContentMMF( filename, delegate( ref ModelRow row ) 
+                    LoadModelFilenameContentMMF( filename, delegate( in ModelRow row ) 
                     {
-                        var textPtr = AllocHGlobalAndCopy( row.TextPtr, row.TextLength );
+                        var textPtr = nativeMemAllocator.AllocAndCopy( row.TextPtr, row.TextLength );
+
                         //!!! -= MUST BE EQUALS IN ALL RECORDS =- !!!!
-                        byte countWeightClasses = (byte) row.WeightClasses.Count;
-                        var weightClassesPtr = Marshal.AllocHGlobal( sizeof(byte) + countWeightClasses * sizeof(float) );
-                        var weightClassesBytePtr = (byte*) weightClassesPtr;
-                        *weightClassesBytePtr++ = countWeightClasses;
+                        byte countWeightClasses   = (byte) row.WeightClasses.Count;
+                        var weightClassesPtr      = nativeMemAllocator.Alloc( sizeof(byte) + countWeightClasses * sizeof(float) );
+                        var weightClassesBytePtr  = (byte*) weightClassesPtr;
+                        *weightClassesBytePtr++   = countWeightClasses;
                         var weightClassesFloatPtr = (float*) weightClassesBytePtr;
                         for ( var i = 0; i < countWeightClasses; i++ )
                         {
@@ -149,6 +130,24 @@ namespace lingvo.classify
                         }
                         modelDictionaryNative.Add( textPtr, weightClassesPtr );
                     });
+
+                    /*
+                    LoadModelFilenameContentMMF( filename, delegate( in ModelRow row ) 
+                    {
+                        var textPtr = AllocHGlobalAndCopy( row.TextPtr, row.TextLength );
+                        //!!! -= MUST BE EQUALS IN ALL RECORDS =- !!!!
+                        byte countWeightClasses   = (byte) row.WeightClasses.Count;
+                        var weightClassesPtr      = Marshal.AllocHGlobal( sizeof(byte) + countWeightClasses * sizeof(float) );
+                        var weightClassesBytePtr  = (byte*) weightClassesPtr;
+                        *weightClassesBytePtr++   = countWeightClasses;
+                        var weightClassesFloatPtr = (float*) weightClassesBytePtr;
+                        for ( var i = 0; i < countWeightClasses; i++ )
+                        {
+                            weightClassesFloatPtr[ i ] = row.WeightClasses[ i ];
+                        }
+                        modelDictionaryNative.Add( textPtr, weightClassesPtr );
+                    });
+                    //*/
                 }
 
                 return (modelDictionaryNative);
@@ -318,7 +317,7 @@ namespace lingvo.classify
                         row.TextPtr       = textPtr;
                         row.WeightClasses = weightClasses;                        
 
-                        callbackAction( ref row );
+                        callbackAction( in row );
 
                         //clear weight-classes temp-buffer
                         weightClasses.Clear();

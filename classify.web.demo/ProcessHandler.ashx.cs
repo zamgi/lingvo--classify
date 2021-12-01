@@ -11,7 +11,7 @@ namespace lingvo.classify
     /// <summary>
     /// 
     /// </summary>
-    public sealed class RESTProcessHandler : IHttpHandler
+    public sealed class ProcessHandler : IHttpHandler
     {
         /// <summary>
         /// 
@@ -96,7 +96,7 @@ namespace lingvo.classify
             }
         }
 
-        static RESTProcessHandler()
+        static ProcessHandler()
         {
             Environment.CurrentDirectory = HttpContext.Current.Server.MapPath( "~/" );
 
@@ -107,8 +107,7 @@ namespace lingvo.classify
             }
         }
 
-        public bool IsReusable { get { return (true); } }
-
+        public bool IsReusable => true;
         public void ProcessRequest( HttpContext context )
         {
             #region [.log.]
@@ -148,14 +147,8 @@ namespace lingvo.classify
             }
         }
 
-        private static void SendJsonResponse( HttpContext context, IList< ClassifyInfo > classifyInfos, double classThresholdPercent )
-        {
-            SendJsonResponse( context, new result( classifyInfos, classThresholdPercent ) );
-        }
-        private static void SendJsonResponse( HttpContext context, Exception ex )
-        {
-            SendJsonResponse( context, new result( ex ) );
-        }
+        private static void SendJsonResponse( HttpContext context, IList< ClassifyInfo > classifyInfos, double classThresholdPercent ) => SendJsonResponse( context, new result( classifyInfos, classThresholdPercent ) );
+        private static void SendJsonResponse( HttpContext context, Exception ex ) => SendJsonResponse( context, new result( ex ) );
         private static void SendJsonResponse( HttpContext context, result result )
         {
             context.Response.ContentType = "application/json";

@@ -18,8 +18,10 @@ namespace lingvo.classify
         /// <summary>
         /// 
         /// </summary>
-        protected struct IntPtrEqualityComparer : IEqualityComparer< IntPtr >
+        protected sealed class IntPtrEqualityComparer : IEqualityComparer< IntPtr >
         {
+            public static IntPtrEqualityComparer Inst { get; } = new IntPtrEqualityComparer();
+            private IntPtrEqualityComparer() { }
             public bool Equals( IntPtr x, IntPtr y )
             {
                 if ( x == y )
@@ -48,28 +50,7 @@ namespace lingvo.classify
                     ptr++;
                 }
                 return (n1 + n2 * 1566083941);
-
-                #region commented
-                /*
-                char* ptr = (char*) obj;
-                int n1 = 5381;
-                int n2 = 5381;
-                int n3;
-                while ( (n3 = (int) (*(ushort*) ptr)) != 0 )
-                {
-                    n1 = ((n1 << 5) + n1 ^ n3);
-                    n3 = (int) (*(ushort*) ptr);
-                    if ( n3 == 0 )
-                    {
-                        break;
-                    }
-                    n2 = ((n2 << 5) + n2 ^ n3);
-                    ptr += 2;
-                }
-                return (n1 + n2 * 1566083941);
-                */
-                #endregion
-            }            
+            }
         }
 
         /// <summary>
@@ -82,10 +63,7 @@ namespace lingvo.classify
             public char* Start;
             public int   Length;
 #if DEBUG
-            public override string ToString()
-            {
-                return (StringsHelper.ToString( Start, Length ));
-            } 
+            public override string ToString() => StringsHelper.ToString( Start, Length );
 #endif
         }
 
@@ -134,15 +112,10 @@ namespace lingvo.classify
                 }
                 _EndBuffer = _Buffer + length;
             }
-            ~EnumeratorMMF()
-            {
-                DisposeNativeResources();
-            }
-
+            ~EnumeratorMMF() => DisposeNativeResources();
             public void Dispose()
             {
                 DisposeNativeResources();
-
                 GC.SuppressFinalize( this );
             }
             private void DisposeNativeResources()
@@ -171,10 +144,7 @@ namespace lingvo.classify
                 }
             }
 
-            public NativeString Current
-            {
-                get { return (_NativeString); }
-            }
+            public NativeString Current => _NativeString;
             public bool MoveNext()
             {
                 var start = _Buffer;
@@ -279,20 +249,9 @@ namespace lingvo.classify
                 _NativeString = NativeString.EMPTY;
                 return (false);
             }
-
-            object IEnumerator.Current
-            {
-                get { return (Current); }
-            }
-            public void Reset()
-            {
-                throw (new NotSupportedException());
-            }
-
-            public static EnumeratorMMF Create( string fileName )
-            {
-                return (new EnumeratorMMF( fileName ));
-            }
+            object IEnumerator.Current => _NativeString;
+            public void Reset() => throw (new NotSupportedException());
+            public static EnumeratorMMF Create( string fileName ) => new EnumeratorMMF( fileName );
         }
 
 
@@ -300,11 +259,7 @@ namespace lingvo.classify
         protected const string INVALIDDATAEXCEPTION_FORMAT_MESSAGE = "Wrong format of model-filename (file-name: '{0}', line# {1}, line-value: '{2}')";
 
         protected static CharType* _CTM;
-
-        static ModelNativeBase()
-        {
-            _CTM = xlat_Unsafe.Inst._CHARTYPE_MAP;
-        }
+        static ModelNativeBase() => _CTM = xlat_Unsafe.Inst._CHARTYPE_MAP;
 
         protected static IntPtr AllocHGlobalAndCopy( char* source, int sourceLength )
         {
@@ -319,8 +274,6 @@ namespace lingvo.classify
             return (destPtr);
         }
 
-        protected ModelNativeBase( ModelConfig config ) : base( config )
-        {
-        }
+        protected ModelNativeBase( ModelConfig config ) : base( config ) { }
     }
 }

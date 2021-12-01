@@ -67,7 +67,7 @@ $(document).ready(function () {
 
         $.ajax({
             type: "POST",
-            url:  "RESTProcessHandler.ashx",
+            url:  "ProcessHandler.ashx",
             data: {
                 text: text
             },
@@ -129,7 +129,7 @@ $(document).ready(function () {
     (function() {
         $.ajax({
             type: "POST",
-            url: "RESTProcessHandler.ashx",
+            url: "ProcessHandler.ashx",
             data: { text: "_dummy_" }
         });
     })();
