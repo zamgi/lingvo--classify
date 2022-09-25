@@ -14,18 +14,15 @@ namespace lingvo.core.algorithm
         public string Value;
         public int    Count;
 
-        public override string ToString()
-        {
-            return (Value + ":" + Count);
-        }
+        public override string ToString() => (Value + ":" + Count);
     }
 
     /// <summary>
     /// 
     /// </summary>
-    internal class word_t_comparer : IComparer< word_t >
+    internal sealed class word_t_comparer : IComparer< word_t >
     {
-        public static readonly word_t_comparer Instance = new word_t_comparer();
+        public static word_t_comparer Inst { get; } = new word_t_comparer();
         private word_t_comparer() { }
 
         public int Compare( word_t x, word_t y )
@@ -735,7 +732,7 @@ namespace lingvo.core.algorithm
 
             if ( percent.HasValue )
             {
-                var ss = new SortedSet< word_t >( word_t_comparer.Instance );
+                var ss = new SortedSet< word_t >( word_t_comparer.Inst );
                 var sum = 0;
                 foreach ( var p in dict )
                 {
@@ -761,7 +758,7 @@ namespace lingvo.core.algorithm
         }
         public SortedSet< word_t > CreateSortedSetAndCutIfNeed( IEnumerable< word_t > words, NGramsEnum dictType, int sum )
         {
-            var ss = new SortedSet< word_t >( word_t_comparer.Instance );
+            var ss = new SortedSet< word_t >( word_t_comparer.Inst );
 
             var percent = GetCutPercent( dictType, _D_param );
 

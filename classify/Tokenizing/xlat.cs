@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Runtime.InteropServices;
+
+using M = System.Runtime.CompilerServices.MethodImplAttribute;
+using O = System.Runtime.CompilerServices.MethodImplOptions;
 
 namespace lingvo.core
 {
@@ -11,8 +11,7 @@ namespace lingvo.core
     /// <summary>
     /// 
     /// </summary>
-    [Flags]
-    public enum CharType : ushort
+    [Flags] public enum CharType : ushort
     {
         __UNDEFINE__  = 0x0,
 
@@ -80,7 +79,6 @@ namespace lingvo.core
 #if XLAT_WHITESPACE_CHARS
         public static readonly char[] WHITESPACE_CHARS;
 #endif
-
         static xlat()
         {            
 #if XLAT_CHARTYPE_MAP
@@ -244,10 +242,8 @@ namespace lingvo.core
 #endif
 		*/
 
-        public static bool IsDot( char ch )
+        [M(O.AggressiveInlining)] public static bool IsDot( char ch )
         {
-            //return (ch == '.');
-            //*
             switch ( ch )
             {
                 case '.':
@@ -257,13 +253,9 @@ namespace lingvo.core
                 default:
                     return (false);
             }
-            //*/
         }
-        public static bool IsAscii( char ch )
-        {
-            return (0 <= ch && ch <= 127);
-        }
-        public static bool IsURIschemes( char ch )
+        [M(O.AggressiveInlining)] public static bool IsAscii( char ch ) => (0 <= ch && ch <= 127);
+        [M(O.AggressiveInlining)] public static bool IsURIschemes( char ch )
         {
             if ( ('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z') )
             {
@@ -277,7 +269,7 @@ namespace lingvo.core
                     return (false);
             }
         }
-        public static bool IsURIschemesPathSeparator( char ch )
+        [M(O.AggressiveInlining)] public static bool IsURIschemesPathSeparator( char ch )
         {
             switch ( ch )    
             {
@@ -288,7 +280,7 @@ namespace lingvo.core
                     return (false);
             }
         }
-        public static bool IsDegree( char ch )
+        [M(O.AggressiveInlining)] public static bool IsDegree( char ch )
         {
             switch ( ch )
             {
@@ -299,7 +291,7 @@ namespace lingvo.core
                     return (false);
             }
         }
-        public static bool IsSlash( char ch )
+        [M(O.AggressiveInlining)] public static bool IsSlash( char ch )
         {
             switch ( ch )
             {
@@ -312,7 +304,7 @@ namespace lingvo.core
             }
         }
 
-        public static char[] Create_LOWER_INVARIANT_MAP()
+        [M(O.AggressiveInlining)] public static char[] Create_LOWER_INVARIANT_MAP()
         {
             var lower_invariant_map = new char[ char.MaxValue + 1 ];
             for ( char ch = char.MinValue, ch2; /*ch <= char.MaxValue*/; ch++ )
@@ -354,22 +346,6 @@ namespace lingvo.core
 #endif
     sealed class xlat_Unsafe
     {
-        /// <summary>
-        /// Обозначение начала предложения (в формате CRFSuit)
-        /// </summary> 
-        public const string BEGIN_OF_SENTENCE = "__BOS__";
-        /// <summary>
-        /// Обозначение конца предложения (в формате CRFSuit)
-        /// </summary> 
-        public const string END_OF_SENTENCE = "__EOS__";
-        public const string INPUTTYPE_OTHER = "O";
-
-        public readonly byte* _InputtypeOtherPtrBase;
-        public readonly byte* _PosInputtypeOtherPtrBase;
-        public readonly byte* _NerInputtypeOtherPtrBase;
-        public readonly byte* _BeginOfSentencePtrBase;
-        public readonly byte* _EndOfSentencePtrBase;
-
 #if XLAT_CHARTYPE_MAP
         public readonly CharType* _CHARTYPE_MAP;
 #endif			
@@ -379,34 +355,6 @@ namespace lingvo.core
 		
         private xlat_Unsafe()
         {
-            //string POSINPUTTYPE_OTHER = PosTaggerInputType.O.ToText();
-            //string NERINPUTTYPE_OTHER = NerInputType.O.ToText();
-            
-            //-1-            
-            var inputtypeOtherBytes         = Encoding.UTF8.GetBytes( INPUTTYPE_OTHER );
-            var inputtypeOtherBytesGCHandle = GCHandle.Alloc( inputtypeOtherBytes, GCHandleType.Pinned );
-            _InputtypeOtherPtrBase          = (byte*) inputtypeOtherBytesGCHandle.AddrOfPinnedObject().ToPointer();
-
-            //-1-            
-            var posInputtypeOtherBytes         = Encoding.UTF8.GetBytes( INPUTTYPE_OTHER /*POSINPUTTYPE_OTHER*/ );
-            var posInputtypeOtherBytesGCHandle = GCHandle.Alloc( posInputtypeOtherBytes, GCHandleType.Pinned );
-            _PosInputtypeOtherPtrBase          = (byte*) posInputtypeOtherBytesGCHandle.AddrOfPinnedObject().ToPointer();
-
-            //-1-            
-            var nerInputtypeOtherBytes         = Encoding.UTF8.GetBytes( INPUTTYPE_OTHER /*NERINPUTTYPE_OTHER*/ );
-            var nerInputtypeOtherBytesGCHandle = GCHandle.Alloc( nerInputtypeOtherBytes, GCHandleType.Pinned );
-            _NerInputtypeOtherPtrBase          = (byte*) nerInputtypeOtherBytesGCHandle.AddrOfPinnedObject().ToPointer();
-
-            //-2-
-            var beginOfSentenceBytes         = Encoding.UTF8.GetBytes( BEGIN_OF_SENTENCE );
-            var beginOfSentenceBytesGCHandle = GCHandle.Alloc( beginOfSentenceBytes, GCHandleType.Pinned );
-            _BeginOfSentencePtrBase          = (byte*) beginOfSentenceBytesGCHandle.AddrOfPinnedObject().ToPointer();
-
-            //-3-
-            var endOfSentenceBytes         = Encoding.UTF8.GetBytes( END_OF_SENTENCE );
-            var endOfSentenceBytesGCHandle = GCHandle.Alloc( endOfSentenceBytes, GCHandleType.Pinned );
-            _EndOfSentencePtrBase          = (byte*) endOfSentenceBytesGCHandle.AddrOfPinnedObject().ToPointer();
-
 #if XLAT_CHARTYPE_MAP
             //-4-
             var _x_ = new ushort[ xlat.CHARTYPE_MAP.Length ];
@@ -429,34 +377,13 @@ namespace lingvo.core
         public static readonly xlat_Unsafe Inst = new xlat_Unsafe();
 
 #if XLAT_CHARTYPE_MAP
-        public bool IsUpper( char ch )
-        {
-            return ((_CHARTYPE_MAP[ ch ] & CharType.IsUpper) == CharType.IsUpper);
-        }
-        public bool IsLower( char ch )
-        {
-            return ((_CHARTYPE_MAP[ ch ] & CharType.IsLower) == CharType.IsLower);
-        }
-        public bool IsLetter( char ch )
-        {
-            return ((_CHARTYPE_MAP[ ch ] & CharType.IsLetter) == CharType.IsLetter);
-        }
-        public bool IsDigit( char ch )
-        {
-            return ((_CHARTYPE_MAP[ ch ] & CharType.IsDigit) == CharType.IsDigit);
-        }
-        public bool IsWhiteSpace( char ch )
-        {
-            return ((_CHARTYPE_MAP[ ch ] & CharType.IsWhiteSpace) == CharType.IsWhiteSpace);
-        }
-        public bool IsPunctuation( char ch )
-        {
-            return ((_CHARTYPE_MAP[ ch ] & CharType.IsPunctuation) == CharType.IsPunctuation);
-        }
-        public bool IsHyphen( char ch )
-        {
-            return ((_CHARTYPE_MAP[ ch ] & CharType.IsHyphen) == CharType.IsHyphen);
-        }
+        [M(O.AggressiveInlining)] public bool IsUpper( char ch ) => ((_CHARTYPE_MAP[ ch ] & CharType.IsUpper) == CharType.IsUpper);
+        [M(O.AggressiveInlining)] public bool IsLower( char ch ) => ((_CHARTYPE_MAP[ ch ] & CharType.IsLower) == CharType.IsLower);
+        [M(O.AggressiveInlining)] public bool IsLetter( char ch ) => ((_CHARTYPE_MAP[ ch ] & CharType.IsLetter) == CharType.IsLetter);
+        [M(O.AggressiveInlining)] public bool IsDigit( char ch ) => ((_CHARTYPE_MAP[ ch ] & CharType.IsDigit) == CharType.IsDigit);
+        [M(O.AggressiveInlining)] public bool IsWhiteSpace( char ch ) => ((_CHARTYPE_MAP[ ch ] & CharType.IsWhiteSpace) == CharType.IsWhiteSpace);
+        [M(O.AggressiveInlining)] public bool IsPunctuation( char ch ) => ((_CHARTYPE_MAP[ ch ] & CharType.IsPunctuation) == CharType.IsPunctuation);
+        [M(O.AggressiveInlining)] public bool IsHyphen( char ch ) => ((_CHARTYPE_MAP[ ch ] & CharType.IsHyphen) == CharType.IsHyphen);
 #endif		
     }
 }

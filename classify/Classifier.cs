@@ -334,26 +334,13 @@ namespace lingvo.classify
         #endregion
 
         #region [.public properties.]
-        public int        VectorLength
-        {
-            get { return (_Model.VectorLength); }
-        }
-        public IEnumerable< string > ModelFilenames
-        {
-            get { return (_Model.Filenames); }
-        }
-        public NGramsType NGramsType
-        {
-            get { return (_Model.NGramsType); }
-            //set { _Model.NGramsType = value; }
-        }
+        public int        VectorLength => _Model.VectorLength;
+        public IEnumerable< string > ModelFilenames => _Model.Filenames;
+        public NGramsType NGramsType => _Model.NGramsType;
         #endregion
 
         #region [.IClassifier.]
-        public int TotalClassCount
-        {
-            get { return (_Model.TotalClassCount); }
-        }
+        public int TotalClassCount => _Model.TotalClassCount;
 
         public IList< ClassifyInfo > MakeClassify( string text )
         {
@@ -417,13 +404,7 @@ namespace lingvo.classify
         }
         #endregion
 
-        private static double GetClassifyInfoCosine( ClassifyInfo ci )
-        {
-            return (ci.Cosine);
-        }
-        private static bool IsClassifyInfoCosineValid( ClassifyInfo ci )
-        {
-            return (!double.IsNaN( ci.Cosine ) && (ci.Cosine != 0));
-        }
+        private static double GetClassifyInfoCosine( ClassifyInfo ci ) => ci.Cosine;
+        private static bool IsClassifyInfoCosineValid( ClassifyInfo ci ) => (!double.IsNaN( ci.Cosine ) && (ci.Cosine != 0));
     }
 }

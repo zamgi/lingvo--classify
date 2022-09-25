@@ -18,37 +18,18 @@ namespace lingvo.classify.modelbuilder
     /// <summary>
     /// 
     /// </summary>
-    internal static class Program
+    internal enum MethodEnum { tfidf, bm25, R_tfidf }
+    /// <summary>
+    /// 
+    /// </summary>
+    internal enum BuildModeEnum { single_model, all_models_by_method, all_possible_models }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    internal static class Config
     {
-		/// <summary>
-		/// 
-		/// </summary>
-		private enum MethodEnum { tfidf, bm25, R_tfidf }
-        /// <summary>
-        /// 
-        /// </summary>
-        private enum BuildModeEnum { single_model, all_models_by_method, all_possible_models }
-				
-        #region [.config.]
-		private static readonly bool USE_BOOST_PRIORITY = bool.Parse( ConfigurationManager.AppSettings[ "USE_BOOST_PRIORITY" ] );
-        private static readonly BuildModeEnum BUILD_MODE = (BuildModeEnum) Enum.Parse( typeof(BuildModeEnum), ConfigurationManager.AppSettings[ "BUILD_MODE" ], true );
-
-        private static readonly string URL_DETECTOR_RESOURCES_XML_FILENAME = ConfigurationManager.AppSettings[ "URL_DETECTOR_RESOURCES_XML_FILENAME" ];
-
-		private static readonly NGramsEnum  NGARMS  = (NGramsEnum ) Enum.Parse( typeof(NGramsEnum ), ConfigurationManager.AppSettings[ "NGARMS"  ], true );
-		private static readonly D_ParamEnum D_PARAM = (D_ParamEnum) Enum.Parse( typeof(D_ParamEnum), ConfigurationManager.AppSettings[ "D_PARAM" ], true );
-		private static readonly MethodEnum  METHOD  = (MethodEnum)  Enum.Parse( typeof(MethodEnum), ConfigurationManager.AppSettings[ "METHOD" ], true );
-		
-		private static readonly string[] INPUT_FILES;
-        private static readonly string   _INPUT_FILES_  = ConfigurationManager.AppSettings[ "INPUT_FILES" ];
-        private static readonly string   INPUT_FOLDER   = ConfigurationManager.AppSettings[ "INPUT_FOLDER"  ];
-        private static readonly Encoding INPUT_ENCODING = Encoding.GetEncoding( ConfigurationManager.AppSettings[ "INPUT_ENCODING" ] );
-
-        private static readonly string   OUTPUT_FILE_PATTERN = ConfigurationManager.AppSettings[ "OUTPUT_FILE_PATTERN" ];
-        private static readonly Encoding OUTPUT_ENCODING     = Encoding.GetEncoding( ConfigurationManager.AppSettings[ "OUTPUT_ENCODING" ] );
-        #endregion
-		
-		static Program()
+		static Config()
 		{
             var inputFiles = _INPUT_FILES_.Split( new[] { ';' }, StringSplitOptions.RemoveEmptyEntries );
 			for ( var i = 0; i < inputFiles.Length; i++ )
@@ -59,6 +40,31 @@ namespace lingvo.classify.modelbuilder
 			INPUT_FILES = inputFiles.Where( _ => !string.IsNullOrWhiteSpace( _ ) ).ToArray();
 		}
 
+        #region [.config.]
+		public static readonly bool          USE_BOOST_PRIORITY = bool.Parse( ConfigurationManager.AppSettings[ "USE_BOOST_PRIORITY" ] );
+        public static readonly BuildModeEnum BUILD_MODE         = (BuildModeEnum) Enum.Parse( typeof(BuildModeEnum), ConfigurationManager.AppSettings[ "BUILD_MODE" ], true );
+
+        public static readonly string URL_DETECTOR_RESOURCES_XML_FILENAME = ConfigurationManager.AppSettings[ "URL_DETECTOR_RESOURCES_XML_FILENAME" ];
+
+        public static readonly NGramsEnum  NGARMS  = (NGramsEnum)  Enum.Parse( typeof(NGramsEnum ), ConfigurationManager.AppSettings[ "NGARMS"  ], true );
+        public static readonly D_ParamEnum D_PARAM = (D_ParamEnum) Enum.Parse( typeof(D_ParamEnum), ConfigurationManager.AppSettings[ "D_PARAM" ], true );
+        public static readonly MethodEnum  METHOD  = (MethodEnum)  Enum.Parse( typeof(MethodEnum), ConfigurationManager.AppSettings[ "METHOD" ], true );
+
+        public  static readonly string[] INPUT_FILES;
+        private static readonly string   _INPUT_FILES_  = ConfigurationManager.AppSettings[ "INPUT_FILES" ];
+        public  static readonly string   INPUT_FOLDER   = ConfigurationManager.AppSettings[ "INPUT_FOLDER"  ];
+        public  static readonly Encoding INPUT_ENCODING = Encoding.GetEncoding( ConfigurationManager.AppSettings[ "INPUT_ENCODING" ] );
+
+        public static readonly string   OUTPUT_FILE_PATTERN = ConfigurationManager.AppSettings[ "OUTPUT_FILE_PATTERN" ];
+        public static readonly Encoding OUTPUT_ENCODING     = Encoding.GetEncoding( ConfigurationManager.AppSettings[ "OUTPUT_ENCODING" ] );
+        #endregion
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    internal static class Program
+    {
 		private static IEnumerable< Tuple< MethodEnum, NGramsEnum, D_ParamEnum > > GetProcessParams()
 		{
 			foreach ( var method in Enum.GetValues( typeof( MethodEnum ) ).Cast< MethodEnum >() )
@@ -90,25 +96,25 @@ namespace lingvo.classify.modelbuilder
             {
                 #region [.print to console config.]
                 Console.WriteLine(Environment.NewLine + "----------------------------------------------");
-                Console.WriteLine( "USE_BOOST_PRIORITY: '" + USE_BOOST_PRIORITY  + "'" );
-                Console.WriteLine( "BUILD_MODE        : '" + BUILD_MODE + "'");
-                switch ( BUILD_MODE )
+                Console.WriteLine( "USE_BOOST_PRIORITY: '" + Config.USE_BOOST_PRIORITY + "'" );
+                Console.WriteLine( "BUILD_MODE        : '" + Config.BUILD_MODE + "'");
+                switch ( Config.BUILD_MODE )
                 {
                     case BuildModeEnum.single_model:
-                Console.WriteLine( "METHOD            : '" + METHOD + "'" );
-				Console.WriteLine( "NGARMS            : '" + NGARMS  + "'" );
-				Console.WriteLine( "D_PARAM           : '" + D_PARAM + "'" );				
+                Console.WriteLine( "METHOD            : '" + Config.METHOD + "'" );
+				Console.WriteLine( "NGARMS            : '" + Config.NGARMS  + "'" );
+				Console.WriteLine( "D_PARAM           : '" + Config.D_PARAM + "'" );				
                     break;
 
                     case BuildModeEnum.all_models_by_method:
-                Console.WriteLine( "METHOD            : '" + METHOD + "'" );
+                Console.WriteLine( "METHOD            : '" + Config.METHOD + "'" );
                     break;
                 }
-				Console.WriteLine( "INPUT_FILES       : '" + string.Join( "'; '", INPUT_FILES )    + "'" );
-				Console.WriteLine( "INPUT_FOLDER      : '" + INPUT_FOLDER    + "'" );
-				Console.WriteLine( "INPUT_ENCODING    : '" + INPUT_ENCODING.WebName  + "'" );
-				Console.WriteLine( "OUTPUT_FILE       : '" + OUTPUT_FILE_PATTERN   + "'" );
-				Console.WriteLine( "OUTPUT_ENCODING   : '" + OUTPUT_ENCODING.WebName + "'" );
+				Console.WriteLine( "INPUT_FILES       : '" + string.Join( "'; '", Config.INPUT_FILES )    + "'" );
+				Console.WriteLine( "INPUT_FOLDER      : '" + Config.INPUT_FOLDER    + "'" );
+				Console.WriteLine( "INPUT_ENCODING    : '" + Config.INPUT_ENCODING.WebName  + "'" );
+				Console.WriteLine( "OUTPUT_FILE       : '" + Config.OUTPUT_FILE_PATTERN   + "'" );
+				Console.WriteLine( "OUTPUT_ENCODING   : '" + Config.OUTPUT_ENCODING.WebName + "'" );
 				Console.WriteLine("----------------------------------------------" + Environment.NewLine);
                 #endregion
 
@@ -121,7 +127,7 @@ namespace lingvo.classify.modelbuilder
                 #endregion
 
                 #region [.use boost priority.]
-                if ( USE_BOOST_PRIORITY )
+                if ( Config.USE_BOOST_PRIORITY )
 				{
                     using ( var p = Process.GetCurrentProcess() )
                     {
@@ -133,31 +139,31 @@ namespace lingvo.classify.modelbuilder
                 #endregion
 
                 #region [.url-detector.]
-                var urlDetectorModel = new UrlDetectorModel( URL_DETECTOR_RESOURCES_XML_FILENAME );
+                var urlDetectorModel = new UrlDetectorModel( Config.URL_DETECTOR_RESOURCES_XML_FILENAME );
                 #endregion
 
                 #region [.build model's.]
-                if ( BUILD_MODE == BuildModeEnum.single_model )
+                if ( Config.BUILD_MODE == BuildModeEnum.single_model )
                 {
                     var bp = new build_params_t()
                     {
                         UrlDetectorModel      = urlDetectorModel,
-                        InputFolder           = INPUT_FOLDER,
-                        InputFilenames        = INPUT_FILES,
-                        Method                = METHOD,
-                        Ngrams                = NGARMS,
-                        D_param               = D_PARAM,
-                        OutputFilenamePattern = OUTPUT_FILE_PATTERN,
+                        InputFolder           = Config.INPUT_FOLDER,
+                        InputFilenames        = Config.INPUT_FILES,
+                        Method                = Config.METHOD,
+                        Ngrams                = Config.NGARMS,
+                        D_param               = Config.D_PARAM,
+                        OutputFilenamePattern = Config.OUTPUT_FILE_PATTERN,
                     };
                     var sw = Stopwatch.StartNew();
                     Build( bp );
                     sw.Stop();
 
-                    Console.WriteLine( "'" + METHOD + "; " + NGARMS + "; " + D_PARAM + "' - success, elapsed: " + sw.Elapsed );
+                    Console.WriteLine( "'" + Config.METHOD + "; " + Config.NGARMS + "; " + Config.D_PARAM + "' - success, elapsed: " + sw.Elapsed );
                 }
                 else
                 {
-                    var tuples = (BUILD_MODE == BuildModeEnum.all_models_by_method) ? GetProcessParams( METHOD ) : GetProcessParams();
+                    var tuples = (Config.BUILD_MODE == BuildModeEnum.all_models_by_method) ? GetProcessParams( Config.METHOD ) : GetProcessParams();
 
                     #region [.build model's.]
                     var sw_total = Stopwatch.StartNew();
@@ -166,12 +172,12 @@ namespace lingvo.classify.modelbuilder
                         var bp = new build_params_t()
                         {
                             UrlDetectorModel      = urlDetectorModel,
-                            InputFolder           = INPUT_FOLDER,
-                            InputFilenames        = INPUT_FILES,
+                            InputFolder           = Config.INPUT_FOLDER,
+                            InputFilenames        = Config.INPUT_FILES,
                             Method                = t.Item1,
                             Ngrams                = t.Item2,
                             D_param               = t.Item3,
-                            OutputFilenamePattern = OUTPUT_FILE_PATTERN,
+                            OutputFilenamePattern = Config.OUTPUT_FILE_PATTERN,
                         };
                         try
                         {
@@ -224,10 +230,7 @@ namespace lingvo.classify.modelbuilder
             public D_ParamEnum      D_param;
             public string           OutputFilenamePattern;
 
-            public override string ToString()
-            {
-                return ("'" + Method + "; " + Ngrams + "; " + D_param + "'");
-            }
+            public override string ToString() => ("'" + Method + "; " + Ngrams + "; " + D_param + "'");
         }
 
 		private static void Build( build_params_t bp )
@@ -245,8 +248,8 @@ namespace lingvo.classify.modelbuilder
                 Console.Write( "start process file: '" + new FileInfo( inputFilename ).Name + "'..." );
 
                 var fileName = Path.Combine( bp.InputFolder, inputFilename );
-                var text = File.ReadAllText( fileName, INPUT_ENCODING );
-                #region commented. xml
+                var text = File.ReadAllText( fileName, Config.INPUT_ENCODING );
+                #region comm. xml
                 /*
 				var sents = (from doc in XDocument.Load( fileName ).Descendants( "document" )
 				                    //.Take( 10 )
@@ -275,7 +278,7 @@ namespace lingvo.classify.modelbuilder
 
                 GCCollect();
 
-                #region commented
+                #region comm.
                 /*
                 var words = tokenizer.run( text );
                 text = null;
@@ -324,9 +327,9 @@ namespace lingvo.classify.modelbuilder
 
             var sb  = new StringBuilder();
             var nfi = new NumberFormatInfo() { NumberDecimalSeparator = "." };
-            using ( var sw = new StreamWriter( outputFile, false, OUTPUT_ENCODING ) )
+            using ( var sw = new StreamWriter( outputFile, false, Config.OUTPUT_ENCODING ) )
             {
-				var header = "#\t'" + string.Join( "'\t'", INPUT_FILES ) + '\'';
+				var header = "#\t'" + string.Join( "'\t'", Config.INPUT_FILES ) + '\'';
 				sw.WriteLine( header );				
 				
                 for ( int i = 0, len = _tfidf_result.TFiDF.Length; i < len; i++ )

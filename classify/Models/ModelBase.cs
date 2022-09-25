@@ -26,44 +26,21 @@ namespace lingvo.classify
             Filenames  = config.Filenames.ToArray();
         }
 
-        public NGramsType NGramsType
-        {
-            get;
-            protected set;
-        }
-        public IEnumerable< string > Filenames
-        {
-            get;
-            protected set;
-        }
-        public int        TotalClassCount
-        {
-            get;
-            protected set;
-        }
-        public int        VectorLength
-        {
-            get;
-            protected set;
-        }
         /// <summary>
         /// use as readonly in 'Classifier'
         /// </summary>
-        public double[]   VectorsSquareLength
-        {
-            get;
-            protected set;
-        }
+        public double[]              VectorsSquareLength { get; protected set; }
+        public NGramsType            NGramsType      { get; protected set; }
+        public IEnumerable< string > Filenames       { get; protected set; }
+        public int                   TotalClassCount { get; protected set; }
+        public int                   VectorLength    { get; protected set; }
 
         public abstract bool TryGetValue( string ngram, out float[] modelRow );
         public abstract void Dispose();
 
         protected void Initialize< TKey >( Dictionary< TKey, float[] > modelDictionary )
         {
-            if ( modelDictionary == null || modelDictionary.Count == 0 )
-            {
-                throw (new ArgumentNullException( "modelDictionary" ));
-            }
+            if ( modelDictionary == null || modelDictionary.Count == 0 ) throw (new ArgumentNullException( "modelDictionary" ));
 
             TotalClassCount = modelDictionary.First().Value.Length;
             VectorLength    = modelDictionary.Count;

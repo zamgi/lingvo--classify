@@ -1,62 +1,54 @@
 ﻿using System.Drawing;
 using System.Drawing.Imaging;
-using System.Web;
+using System.Runtime.Caching;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace captcha
 {
     /// <summary>
     /// 
     /// </summary>
-    public class CaptchaImageHandler : IHttpHandler
+    public static class CaptchaImageHandler
     {
-        // Methods
-        public void ProcessRequest( HttpContext context )
+        public static async Task ProcessRequest( HttpContext context )
         {
-            HttpApplication applicationInstance = context.ApplicationInstance;
-            string key = applicationInstance.Request.QueryString[ "guid" ];
+            string key = context.Request.Query[ "guid" ];
             CaptchaImage image = null;
             if ( !string.IsNullOrEmpty( key ) )
             {
-                if ( string.IsNullOrEmpty( applicationInstance.Request.QueryString[ "s" ] ) )
+                if ( string.IsNullOrEmpty( context.Request.Query[ "s" ] ) )
                 {
-                    image = (CaptchaImage) HttpRuntime.Cache.Get( key );
+                    image = (CaptchaImage) MemoryCache.Default.Get( key );
                 }
                 else
                 {
-                    image = (CaptchaImage) HttpContext.Current.Session[ key ];
+                    image = (CaptchaImage) context.Items[ key ];
                 }
             }
+
             if ( image == null )
             {
                 if ( key == "xz" )
                 {
-                    //var rm = new ResourceManager( , Assembly.GetExecutingAssembly() );
-                    //var x = rm.GetObject( "captcha.CaptchaControl.bmp" );
-                    applicationInstance.Response.ContentType = "application/json";
-                    applicationInstance.Context.Response.Write( "{ key: \"xz\" }" );
-                    applicationInstance.Response.StatusCode = 200;
-                    context.ApplicationInstance.CompleteRequest();
+                    context.Response.ContentType = "application/json";
+                    context.Response.StatusCode  = 200;
+                    await context.Response.WriteAsJsonAsync( new { key = "xz" } );                    
                 }
-                
-                applicationInstance.Response.StatusCode = 404;
-                context.ApplicationInstance.CompleteRequest();
+                else
+                {
+                    context.Response.StatusCode = 404;
+                }
             }
             else
             {
                 using ( Bitmap bitmap = image.RenderImage() )
                 {
-                    bitmap.Save( applicationInstance.Context.Response.OutputStream, ImageFormat.Jpeg );
+                    bitmap.Save( context.Response.Body, ImageFormat.Jpeg );
                 }
-                applicationInstance.Response.ContentType = "image/jpeg";
-                applicationInstance.Response.StatusCode = 200;
-                context.ApplicationInstance.CompleteRequest();
+                context.Response.ContentType = "image/jpeg";
+                context.Response.StatusCode  = 200;
             }
-        }
-
-        // Properties
-        public bool IsReusable
-        {
-            get { return (true); }
         }
     }
 }

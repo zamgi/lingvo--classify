@@ -10,8 +10,7 @@ namespace lingvo.classify
     {
         private static double ScalarProductOfVector( float[] v1, float[] v2 )
         {
-            if ( v1.Length != v2.Length )
-                throw (new InvalidOperationException());
+            if ( v1.Length != v2.Length ) throw (new InvalidOperationException());
 
             double scalar_product = 0;
             fixed ( float* ptr1 = v1 )

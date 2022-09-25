@@ -98,7 +98,11 @@ namespace lingvo.classify
                 _NativeString       = NativeString.EMPTY;
                 
                 _FS  = new FileStream( fileName, FileMode.Open, FileAccess.Read, FileShare.Read, BUFFER_SIZE, FileOptions.SequentialScan );
+#if NETSTANDARD || NETCOREAPP
+                _MMF = MemoryMappedFile.CreateFromFile( _FS, null, 0L, MemoryMappedFileAccess.Read, HandleInheritability.None, true );
+#else
                 _MMF = MemoryMappedFile.CreateFromFile( _FS, null, 0L, MemoryMappedFileAccess.Read, new MemoryMappedFileSecurity(), HandleInheritability.None, true );
+#endif
                 _Accessor = _MMF.CreateViewAccessor( 0L, 0L, MemoryMappedFileAccess.Read );
 
                 _Accessor.SafeMemoryMappedViewHandle.AcquirePointer( ref _Buffer );

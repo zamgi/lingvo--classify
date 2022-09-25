@@ -44,8 +44,8 @@ namespace lingvo.classify
             {
                 if ( _DictionaryNative.TryGetValue( (IntPtr) ngramPtr, out var weightClassesPtr ) )
                 {
-                    var weightClassesBytePtr = ((byte*) weightClassesPtr);
-                    var countWeightClasses = *weightClassesBytePtr++;
+                    var weightClassesBytePtr  = ((byte*) weightClassesPtr);
+                    var countWeightClasses    = *weightClassesBytePtr++;
                     var weightClassesFloatPtr = (float*) weightClassesBytePtr;
                     Debug.Assert( countWeightClasses == _ModelRow.Length, "[countWeightClasses != _ModelRow.Length]" );
                     fixed ( float* modelRowPtr = _ModelRow )
@@ -67,10 +67,7 @@ namespace lingvo.classify
 
         unsafe private void InitializeNative( Dictionary< IntPtr, IntPtr > modelDictionary )
         {
-            if ( modelDictionary == null || modelDictionary.Count == 0 )
-            {
-                throw (new ArgumentNullException( "modelDictionary" ));
-            }
+            if ( modelDictionary == null || modelDictionary.Count == 0 ) throw (new ArgumentNullException( "modelDictionary" ));
 
             var weightClassesPtr = modelDictionary.First().Value;
             TotalClassCount = *((byte*) weightClassesPtr);

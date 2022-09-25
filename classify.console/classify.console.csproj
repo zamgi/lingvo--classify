@@ -28,16 +28,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\classify\Tokenizing\ClassifyTokenizer.cs" Link="Tokenizing\ClassifyTokenizer.cs" />
-    <Compile Include="..\classify\Tokenizing\UrlDetector.cs" Link="Tokenizing\UrlDetector.cs" />
-    <Compile Include="..\classify\Tokenizing\xlat.cs" Link="Tokenizing\xlat.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.1" />
   </ItemGroup>
 
-  <PropertyGroup>
-    <DefineConstants>$(DefineConstants)TRACE; XLAT_WHITESPACE_CHARS; XLAT_UPPER_INVARIANT_MAP; XLAT_CHARTYPE_MAP;</DefineConstants>
-  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\classify\classify.csproj" />
+  </ItemGroup>
 </Project>

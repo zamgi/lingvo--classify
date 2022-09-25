@@ -21,7 +21,7 @@ namespace lingvo.classify
             _Dictionary = ModelClassicLoader.LoadDictionary( config );
             base.Initialize( _Dictionary );
 
-            #region commented
+            #region comm.
             /*
             var modelDictionaryNative = ModelLoaderNative.LoadDictionaryNative( config );
             var modelDictionary = ModelLoader.LoadDictionary( config );
@@ -52,10 +52,7 @@ namespace lingvo.classify
         #endregion
 
         #region [.IClassifierModel.]
-        public override bool TryGetValue( string ngram, out float[] modelRow )
-        {
-            return (_Dictionary.TryGetValue( ngram, out modelRow ));
-        } 
+        public override bool TryGetValue( string ngram, out float[] modelRow ) => _Dictionary.TryGetValue( ngram, out modelRow );
         #endregion
 
         /// <summary>

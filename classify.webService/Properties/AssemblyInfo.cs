@@ -4,12 +4,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("captcha")]
+[assembly: AssemblyTitle("classify.webService")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("zamgi")]
-[assembly: AssemblyProduct("captcha")]
-[assembly: AssemblyCopyright("Copyright © zamgi 2014")]
+[assembly: AssemblyProduct("classify.webService")]
+[assembly: AssemblyCopyright("Copyright © zamgi 2022")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -19,7 +19,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("f8ab6d6e-4c3a-40b6-8643-1aa46bb59007")]
+[assembly: Guid("1ab2c0ae-9361-45be-96b3-d9e4606ca793")]
 
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]

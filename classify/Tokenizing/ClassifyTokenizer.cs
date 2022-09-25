@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading;
 
 using lingvo.core;
 using lingvo.urls;
@@ -129,9 +128,7 @@ namespace lingvo.tokenizing
         #endregion
 
         #region [.ctor().]
-        public ClassifyTokenizer( UrlDetectorModel urlModel ) : this( urlModel, DEFAULT_WORDCAPACITY )
-        {
-        }
+        public ClassifyTokenizer( UrlDetectorModel urlModel ) : this( urlModel, DEFAULT_WORDCAPACITY ) { }
         public ClassifyTokenizer( UrlDetectorModel urlModel, int wordCapacity )
         {
             var urlConfig = new UrlDetectorConfig()
@@ -163,10 +160,7 @@ namespace lingvo.tokenizing
             _WordToUpperBufferPtrBase  = (char*) _WordToUpperBufferGCHandle.AddrOfPinnedObject().ToPointer();
         }
 
-        ~ClassifyTokenizer()
-        {
-            DisposeNativeResources();
-        }
+        ~ClassifyTokenizer() => DisposeNativeResources();
         public void Dispose()
         {
             DisposeNativeResources();
@@ -189,10 +183,7 @@ namespace lingvo.tokenizing
             Run( text, _AddWordToListAction );
             return (_Words);
         }
-        private void AddWordToList( string word )
-        {
-            _Words.Add( word );
-        }
+        private void AddWordToList( string word ) => _Words.Add( word );
 
         public void Run( string text, Action< string > processWordAction )
         {
@@ -254,8 +245,7 @@ namespace lingvo.tokenizing
 
                         _StartIndex++;
                     }
-                    else
-                    if ( *(_IAW + *_Ptr) )
+                    else if ( *(_IAW + *_Ptr) )
                     {
                         if ( _Length != 0 )
                         {
@@ -361,9 +351,6 @@ namespace lingvo.tokenizing
             var url = _UrlDetector.AllocateSingleUrl( _Ptr );
             if ( url != null )
             {
-#if DEBUG
-var xxx = new string ( _BASE, url.startIndex, url.length );
-#endif
                 _Ptr = _BASE + url.startIndex + url.length - 1;
                 _StartIndex = (int)(_Ptr - _BASE + 1);
                 _Length = 0;
@@ -409,7 +396,6 @@ var xxx = new string ( _BASE, url.startIndex, url.length );
                 {
                     return (null);
                 }
-
 #if NOT_USE_UPPER_INVARIANT_CONVERTION
                 var w = new string( ptr, start, end - start + 1 );
                 return (w);
@@ -459,58 +445,55 @@ var xxx = new string ( _BASE, url.startIndex, url.length );
         }
 
         #region [.ngrams creating.]
-        public HashSet< string > ToHashset( string text, NGramsType ngramsType )
-        {
-            var hs = new HashSet< string >();
-            FillHashset( hs, text, ngramsType );
-            return (hs);
-        }
-        public void FillHashset( HashSet< string > hs, string text, NGramsType ngramsType )
-        {
-            var terms = Run( text ); //Tokenizer.ParseText( text );
+        //public HashSet< string > ToHashset( string text, NGramsType ngramsType )
+        //{
+        //    var hs = new HashSet< string >();
+        //    FillHashset( hs, text, ngramsType );
+        //    return (hs);
+        //}
+        //public void FillHashset( HashSet< string > hs, string text, NGramsType ngramsType )
+        //{
+        //    var terms = Run( text ); //Tokenizer.ParseText( text );
 
-            hs.Clear();
-            //NGramsType.NGram_1:
-            foreach ( var term in terms )
-            {
-                if ( term != null )
-                {
-                    hs.Add( term );
-                }
-            }
+        //    hs.Clear();
+        //    //NGramsType.NGram_1:
+        //    foreach ( var term in terms )
+        //    {
+        //        if ( term != null )
+        //        {
+        //            hs.Add( term );
+        //        }
+        //    }
 
-            var ngrams = default(IEnumerable< string >);
-            switch ( ngramsType )
-            {
-                case NGramsType.NGram_2:
-                    ngrams = GetNGrams_2( terms );
-                break;
-                case NGramsType.NGram_3:
-                    ngrams = GetNGrams_2( terms ).Concat( GetNGrams_3( terms ) );
-                break;
-                case NGramsType.NGram_4:
-                    ngrams = GetNGrams_2( terms ).Concat( GetNGrams_3( terms ) ).Concat( GetNGrams_4( terms ) );
-                break;
-            }
+        //    var ngrams = default(IEnumerable< string >);
+        //    switch ( ngramsType )
+        //    {
+        //        case NGramsType.NGram_2:
+        //            ngrams = GetNGrams_2( terms );
+        //        break;
+        //        case NGramsType.NGram_3:
+        //            ngrams = GetNGrams_2( terms ).Concat( GetNGrams_3( terms ) );
+        //        break;
+        //        case NGramsType.NGram_4:
+        //            ngrams = GetNGrams_2( terms ).Concat( GetNGrams_3( terms ) ).Concat( GetNGrams_4( terms ) );
+        //        break;
+        //    }
 
-            if ( ngrams != null )
-            {
-                foreach ( var ngram in ngrams )
-                {
-                    hs.Add( ngram );
-                }
-                ngrams = null;
-            }
-            terms = null;
-        }
+        //    if ( ngrams != null )
+        //    {
+        //        foreach ( var ngram in ngrams )
+        //        {
+        //            hs.Add( ngram );
+        //        }
+        //    }
+        //}
 		
         private IEnumerable< string > GetNGrams_2( IList< string > terms )
         {
-            var t1 = default(string);
-            var t2 = default(string);
             for ( int i = 0, len = terms.Count - 1; i < len; i++ )
             {
-                while (true)
+                string t1;
+                while ( true )
                 {
                     t1 = terms[ i ];
                     if ( t1 != null )
@@ -520,7 +503,8 @@ var xxx = new string ( _BASE, url.startIndex, url.length );
                         yield break;
                 }
 
-                while (true)
+                string t2;
+                while ( true )
                 {
                     t2 = terms[ i + 1 ];
                     if ( t2 != null )
@@ -536,12 +520,10 @@ var xxx = new string ( _BASE, url.startIndex, url.length );
         }
         private IEnumerable< string > GetNGrams_3( IList< string > terms )
         {
-            var t1 = default(string);
-            var t2 = default(string);
-            var t3 = default(string);
             for ( int i = 0, len = terms.Count - 2; i < len; i++ )
             {
-                while (true)
+                string t1;
+                while ( true )
                 {
                     t1 = terms[ i ];
                     if ( t1 != null )
@@ -551,7 +533,8 @@ var xxx = new string ( _BASE, url.startIndex, url.length );
                         yield break;
                 }
 
-                while (true)
+                string t2;
+                while ( true )
                 {
                     t2 = terms[ i + 1 ];
                     if ( t2 != null )
@@ -561,7 +544,8 @@ var xxx = new string ( _BASE, url.startIndex, url.length );
                         yield break;
                 }
 
-                while (true)
+                string t3;
+                while ( true )
                 {
                     t3 = terms[ i + 2 ];
                     if ( t3 != null )
@@ -577,13 +561,10 @@ var xxx = new string ( _BASE, url.startIndex, url.length );
         }
         private IEnumerable< string > GetNGrams_4( IList< string > terms )
         {
-            var t1 = default(string);
-            var t2 = default(string);
-            var t3 = default(string);
-            var t4 = default(string);
             for ( int i = 0, len = terms.Count - 3; i < len; i++ )
             {
-                while (true)
+                string t1;
+                while ( true )
                 {
                     t1 = terms[ i ];
                     if ( t1 != null )
@@ -593,7 +574,8 @@ var xxx = new string ( _BASE, url.startIndex, url.length );
                         yield break;
                 }
 
-                while (true)
+                string t2;
+                while ( true )
                 {
                     t2 = terms[ i + 1 ];
                     if ( t2 != null )
@@ -603,7 +585,8 @@ var xxx = new string ( _BASE, url.startIndex, url.length );
                         yield break;
                 }
 
-                while (true)
+                string t3;
+                while ( true )
                 {
                     t3 = terms[ i + 2 ];
                     if ( t3 != null )
@@ -613,7 +596,8 @@ var xxx = new string ( _BASE, url.startIndex, url.length );
                         yield break;
                 }
 
-                while (true)
+                string t4;
+                while ( true )
                 {
                     t4 = terms[ i + 3 ];
                     if ( t4 != null )
@@ -633,13 +617,12 @@ var xxx = new string ( _BASE, url.startIndex, url.length );
             var terms = Run( text );
 
             tfDictionary.Clear();
-            var count = default(int);
             //NGramsType.NGram_1:
             foreach ( var term in terms )
             {
                 //if ( term != null )
                 //{
-				if ( tfDictionary.TryGetValue( term, out count ) )
+				if ( tfDictionary.TryGetValue( term, out var count ) )
                 {
 					tfDictionary[ term ] = count + 1;
 				}
@@ -668,7 +651,7 @@ var xxx = new string ( _BASE, url.startIndex, url.length );
             {
                 foreach ( var ngram in ngrams )
                 {
-				    if ( tfDictionary.TryGetValue( ngram, out count ) )
+				    if ( tfDictionary.TryGetValue( ngram, out var count ) )
                     {
 					    tfDictionary[ ngram ] = count + 1;
 				    }
@@ -677,9 +660,7 @@ var xxx = new string ( _BASE, url.startIndex, url.length );
 			            tfDictionary.Add( ngram, 1 );
 				    }
                 }
-                ngrams = null;
             }
-            terms = null;
         }
         #endregion
     }

@@ -11,12 +11,9 @@ namespace lingvo.classify
         public int    ClassIndex;
         public double Cosine;
 
-        public override string ToString()
-        {
-            return ("class-index: '" + ClassIndex + "', svm-cosine: '" +
-                    Cosine.ToString( new NumberFormatInfo() { NumberDecimalSeparator = "." } )
-                   );
-        }
+        public override string ToString() => ("class-index: '" + ClassIndex + "', svm-cosine: '" +
+                                              Cosine.ToString( new NumberFormatInfo() { NumberDecimalSeparator = "." } )
+                                             );
     }
 
     /// <summary>
@@ -25,7 +22,6 @@ namespace lingvo.classify
     public interface IClassifier
     {
         int TotalClassCount { get; }
-
         IList< ClassifyInfo > MakeClassify( string text );
     }
 }
