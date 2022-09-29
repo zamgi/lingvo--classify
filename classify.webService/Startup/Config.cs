@@ -4,6 +4,7 @@ using System.Configuration;
 using System.IO;
 using System.Linq;
 
+using captcha;
 using lingvo.tokenizing;
 
 namespace classify.webService
@@ -13,15 +14,21 @@ namespace classify.webService
     /// </summary>
     public interface IConfig
     {
-        string[] CLASS_INDEX_NAMES { get; }
         int CLASS_THRESHOLD_PERCENT { get; }
         int CONCURRENT_FACTORY_INSTANCE_COUNT { get; }
-        string[] MODEL_FILENAMES { get; }
         NGramsType MODEL_NGRAMS_TYPE { get; }
         int MODEL_ROW_CAPACITY { get; }
         string URL_DETECTOR_RESOURCES_XML_FILENAME { get; }
 
+        string[] CLASS_INDEX_NAMES { get; }
+        string[] MODEL_FILENAMES { get; }
+
         string ClassIndex2Text( int classIndex );
+
+
+        int SAME_IP_INTERVAL_REQUEST_IN_SECONDS  { get; }
+        int SAME_IP_MAX_REQUEST_IN_INTERVAL      { get; }
+        int SAME_IP_BANNED_INTERVAL_IN_SECONDS   { get; }
     }
 
     /// <summary>
@@ -62,9 +69,9 @@ namespace classify.webService
 
         public int CONCURRENT_FACTORY_INSTANCE_COUNT { get; } = int.Parse( ConfigurationManager.AppSettings[ "CONCURRENT_FACTORY_INSTANCE_COUNT" ] );
 
-        //public int SAME_IP_INTERVAL_REQUEST_IN_SECONDS  { get; } = int.Parse( ConfigurationManager.AppSettings[ "SAME_IP_INTERVAL_REQUEST_IN_SECONDS" ] );
-        //public int SAME_IP_MAX_REQUEST_IN_INTERVAL      { get; } = int.Parse( ConfigurationManager.AppSettings[ "SAME_IP_MAX_REQUEST_IN_INTERVAL" ] );
-        //public int SAME_IP_BANNED_INTERVAL_IN_SECONDS   { get; } = int.Parse( ConfigurationManager.AppSettings[ "SAME_IP_BANNED_INTERVAL_IN_SECONDS" ] );
+        public int SAME_IP_INTERVAL_REQUEST_IN_SECONDS  { get; } = int.TryParse( ConfigurationManager.AppSettings[ "SAME_IP_INTERVAL_REQUEST_IN_SECONDS" ], out var i ) ? i : AntiBotConfig.SAME_IP_BANNED_INTERVAL_IN_SECONDS;
+        public int SAME_IP_MAX_REQUEST_IN_INTERVAL      { get; } = int.TryParse( ConfigurationManager.AppSettings[ "SAME_IP_MAX_REQUEST_IN_INTERVAL"     ], out var i ) ? i : AntiBotConfig.SAME_IP_MAX_REQUEST_IN_INTERVAL;
+        public int SAME_IP_BANNED_INTERVAL_IN_SECONDS   { get; } = int.TryParse( ConfigurationManager.AppSettings[ "SAME_IP_BANNED_INTERVAL_IN_SECONDS"  ], out var i ) ? i : AntiBotConfig.SAME_IP_BANNED_INTERVAL_IN_SECONDS;
 
         public string ClassIndex2Text( int classIndex )
         {

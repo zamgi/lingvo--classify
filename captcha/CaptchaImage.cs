@@ -45,24 +45,16 @@ namespace captcha
             Extreme
         }
 
-        private Color                _BackColor = Color.White;
-        private BackgroundNoiseLevel _BackgroundNoise = BackgroundNoiseLevel.Low;
-        private Color                _FontColor = Color.Black;
-        private string               _FontFamilyName;
-        private FontWarpFactor       _FontWarp = FontWarpFactor.Low;
-        private string               _FontWhitelist = "arial;arial black;comic sans ms;courier new;estrangelo edessa;franklin gothic medium;georgia;lucida console;lucida sans unicode;mangal;microsoft sans serif;palatino linotype;sylfaen;tahoma;times new roman;trebuchet ms;verdana";
-        private string[]             _FontWhitelistArray;
-        private DateTime             _GeneratedAt;
-        private string               _Guid;
-        private int                  _Height = 50;
-        private Color                _LineColor = Color.Black;
-        private LineNoiseLevel       _LineNoise = LineNoiseLevel.None;
-        private Color                _NoiseColor = Color.Black;
-        private Random               _Rand = new Random();
-        private string               _RandomText;
-        private string               _RandomTextChars  = "ACDEFGHJKLNPQRTUVXYZ2346789";
-        private int                  _RandomTextLength = 5;        
-        private int                  _Width = 180;
+        private string   _FontFamilyName;
+        private string[] _FontWhitelistArray;
+        private DateTime _GeneratedAt;
+        private string   _Guid;
+        private int      _Height = 50;
+        private Random   _Rand = new Random();
+        private string   _RandomText;
+        private string   _RandomTextChars  = "ACDEFGHJKLNPQRTUVXYZ2346789";
+        private int      _RandomTextLength = 5;        
+        private int      _Width = 180;
 
         private static bool IsLinux()
         {
@@ -70,7 +62,6 @@ namespace captcha
             return (p == 4) || (p == 6) || (p == 128);
         }
 
-        // Methods
         public CaptchaImage()
         {
             _RandomText  = GenerateRandomText();
@@ -85,7 +76,7 @@ namespace captcha
             float width = 1f;
             int   n1    = 0;
             int   n2    = 0;
-            switch ( _LineNoise )
+            switch ( LineNoise )
             {
                 case LineNoiseLevel.None:
                     return;
@@ -115,7 +106,7 @@ namespace captcha
                     break;
             }
             var points = new PointF[ n1 + 1 ];
-            using ( var pen = new Pen( _LineColor, width ) )
+            using ( var pen = new Pen( LineColor, width ) )
             {
                 for ( int i = 1; i <= n2; i++ )
                 {
@@ -131,7 +122,7 @@ namespace captcha
         {
             int n1 = 0;
             int n2 = 0;
-            switch (_BackgroundNoise)
+            switch ( BackgroundNoise )
             {
                 case BackgroundNoiseLevel.None:
                     return;
@@ -157,7 +148,7 @@ namespace captcha
                     break;
             }
 
-            using ( var brush = new SolidBrush( _NoiseColor ) )
+            using ( var brush = new SolidBrush( NoiseColor ) )
             {
                 int maxValue = Convert.ToInt32( (int) (Math.Max( rect.Width, rect.Height ) / n2) );
                 for ( int i = 0; i <= Convert.ToInt32( (int) ((rect.Width * rect.Height) / n1) ); i++ )
@@ -174,17 +165,17 @@ namespace captcha
             {
                 graphics.SmoothingMode = SmoothingMode.AntiAlias;
                 var rect = new Rectangle( 0, 0, _Width, _Height );
-                using ( var brush = new SolidBrush( _BackColor ) )
+                using ( var brush = new SolidBrush( BackColor ) )
                 {
                     graphics.FillRectangle( brush, rect );
                 }
                 int n1 = 0;
                 double n2 = _Width / _RandomTextLength;
-                using ( var brush = new SolidBrush( _FontColor ) )
+                using ( var brush = new SolidBrush( FontColor ) )
                 {
                     foreach ( char ch in _RandomText )
                     {
-                        using ( var f = GetFont() )
+                        using ( var f = CreateFont() )
                         {
                             var rectf = new RectangleF( Convert.ToSingle( (double) (n1 * n2) ), 0, Convert.ToSingle( n2 ), _Height );
                             using ( GraphicsPath path = TextPath( ch.ToString(), f, rectf ) )
@@ -209,14 +200,14 @@ namespace captcha
         {
             var buf = new StringBuilder( _RandomTextLength );
             int length = _RandomTextChars.Length;
-            for ( int i = 0; i <= (_RandomTextLength - 1); i++ )
+            for ( int i = 0, len = (_RandomTextLength - 1); i <= len; i++ )
             {
                 buf.Append( _RandomTextChars.Substring( _Rand.Next( length ), 1 ) );
             }
             return (buf.ToString());
         }
 
-        private Font GetFont()
+        private Font CreateFont()
         {
             float  emSize     = 0f;
             string familyName = _FontFamilyName;
@@ -246,13 +237,13 @@ namespace captcha
                     emSize = Convert.ToInt32( (double) (_Height * 0.95) );
                     break;
             }
-            return new Font( familyName, emSize, FontStyle.Bold );
+            return (new Font( familyName, emSize, FontStyle.Bold ));
         }
         private string RandomFontFamily()
         {
             if ( _FontWhitelistArray == null )
             {
-                _FontWhitelistArray = _FontWhitelist.Split( new[] { ';' }, StringSplitOptions.RemoveEmptyEntries );
+                _FontWhitelistArray = FontWhitelist.Split( new[] { ';' }, StringSplitOptions.RemoveEmptyEntries );
             }
             return _FontWhitelistArray[ _Rand.Next( 0, _FontWhitelistArray.Length ) ];
         }
@@ -268,7 +259,6 @@ namespace captcha
             {
                 Alignment     = StringAlignment.Near,
                 LineAlignment = StringAlignment.Near,
-                
             };
             var path = new GraphicsPath();
             path.AddString( s, font.FontFamily, (int) font.Style, font.Size, rect, format );
@@ -280,7 +270,7 @@ namespace captcha
         {
             float n1 = 1f;
             float n2 = 1f;
-            switch ( _FontWarp )
+            switch ( FontWarp )
             {
                 case FontWarpFactor.None:
                     return;
@@ -332,23 +322,14 @@ namespace captcha
             PointF tf2 = RandomPoint( xmax - n4, xmax, ymin, ymin + n3 );
             PointF tf3 = RandomPoint( xmin, xmin + n4, ymax - n3, ymax );
             PointF tf4 = RandomPoint( xmax - n4, xmax, ymax - n3, ymax );
-            PointF[] destPoints = new PointF[] { tf, tf2, tf3, tf4 };
+            var destPoints = new[] { tf, tf2, tf3, tf4 };
             var matrix = new Matrix();
             matrix.Translate( 0f, 0f );
             textPath.Warp( destPoints, srcRect, matrix, WarpMode.Perspective, 0f );
         }
 
-        // Properties
-        public Color BackColor
-        {
-            get => _BackColor;
-            set => _BackColor = value;
-        }
-        public BackgroundNoiseLevel BackgroundNoise
-        {
-            get => _BackgroundNoise;
-            set => _BackgroundNoise = value;
-        }
+        public Color BackColor { get; set; } = Color.White;
+        public BackgroundNoiseLevel BackgroundNoise { get; set; } = BackgroundNoiseLevel.Low;
         public string Font
         {
             get => _FontFamilyName;
@@ -370,48 +351,21 @@ namespace captcha
                 }
             }
         }
-        public Color FontColor
-        {
-            get => _FontColor;
-            set => _FontColor = value;
-        }
-        public FontWarpFactor FontWarp
-        {
-            get => _FontWarp;
-            set => _FontWarp = value;
-        }
-        public string FontWhitelist
-        {
-            get => _FontWhitelist;
-            set => _FontWhitelist = value;
-        }
+        public Color FontColor { get; set; } = Color.Black;
+        public FontWarpFactor FontWarp { get; set; } = FontWarpFactor.Low;
+        public string FontWhitelist { get; set; } = "arial;arial black;comic sans ms;courier new;estrangelo edessa;franklin gothic medium;georgia;lucida console;lucida sans unicode;mangal;microsoft sans serif;palatino linotype;sylfaen;tahoma;times new roman;trebuchet ms;verdana";
         public int Height
         {
             get => _Height;
             set
             {
-                if ( value <= 30 )
-                {
-                    throw (new ArgumentOutOfRangeException( "height", value, "height must be greater than 30." ));
-                }
+                if ( value <= 30 ) throw (new ArgumentOutOfRangeException( "height", value, "height must be greater than 30." ));
                 _Height = value;
             }
         }
-        public Color LineColor
-        {
-            get => _LineColor;
-            set => _LineColor = value;
-        }
-        public LineNoiseLevel LineNoise
-        {
-            get => _LineNoise;
-            set => _LineNoise = value;
-        }
-        public Color NoiseColor
-        {
-            get => _NoiseColor;
-            set => _NoiseColor = value;
-        }
+        public Color LineColor { get; set; } = Color.Black;
+        public LineNoiseLevel LineNoise { get; set; } = LineNoiseLevel.None;
+        public Color NoiseColor { get; set; } = Color.Black;
         public DateTime RenderedAt => _GeneratedAt;
         public string Text => _RandomText;            
         public string TextChars
@@ -420,7 +374,7 @@ namespace captcha
             set
             {
                 _RandomTextChars = value;
-                _RandomText = GenerateRandomText();
+                _RandomText      = GenerateRandomText();
             }
         }
         public int TextLength
@@ -429,7 +383,7 @@ namespace captcha
             set
             {
                 _RandomTextLength = value;
-                _RandomText = GenerateRandomText();
+                _RandomText       = GenerateRandomText();
             }
         }
         public string UniqueId => _Guid;            
@@ -438,10 +392,7 @@ namespace captcha
             get => _Width;
             set
             {
-                if ( value <= 60 )
-                {
-                    throw (new ArgumentOutOfRangeException( "width", value, "width must be greater than 60." ));
-                }
+                if ( value <= 60 ) throw (new ArgumentOutOfRangeException( "width", value, "width must be greater than 60." ));
                 _Width = value;
             }
         }

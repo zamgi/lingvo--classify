@@ -34,8 +34,7 @@ $(document).ready(function () {
 
     (function () {
         function isGooglebot() { return (navigator.userAgent.toLowerCase().indexOf('googlebot/') !== -1); };
-        if (isGooglebot())
-            return;
+        if (isGooglebot()) return;
 
         var text = localStorage.getItem(LOCALSTORAGE_TEXT_KEY);
         if (!text || !text.length) text = DEFAULT_TEXT;
@@ -70,8 +69,12 @@ $(document).ready(function () {
             data       : JSON.stringify( model ),
             success: function (responce) {
                 if (responce.err) {
-                    processing_end();
-                    $('.result-info').addClass('error').text(responce.err);
+                    if (responce.err === "goto-on-captcha") {
+                        window.location.href = "/Process/Captcha";
+                    } else {
+                        processing_end();
+                        $('.result-info').addClass('error').text(responce.err);
+                    }
                 } else {
                     if (responce.classes && responce.classes.length) {
                         $('.result-info').removeClass('error').text('');
@@ -83,8 +86,9 @@ $(document).ready(function () {
                             else
                                 texts.push( '<tr><td>' + ci.n + '</td><td>' + ci.p + '%</td></tr>' );
                         }
-                        texts.push( '<tr style="color: gray"><td>Другие</td><td>менее 10%</td></tr>' );
-                        $('#processResult tbody').html( texts.join('') );
+                        texts.push('<tr style="color: gray"><td>Другие</td><td>менее 10%</td></tr>');
+                        setTimeout( () => $('#processResult tbody').html( texts.join('') ), 100 );
+                        //$('#processResult tbody').html( texts.join('') );
                         processing_end();
                         $('.result-info').hide();
                     } else {
@@ -98,7 +102,6 @@ $(document).ready(function () {
                 $('.result-info').text('ошибка сервера');
             }
         });
-        
     });
 
     function processing_start(){
@@ -115,15 +118,6 @@ $(document).ready(function () {
     };
     function trim_text(text) { return (text.replace(/(^\s+)|(\s+$)/g, "")); };
     function is_text_empty(text) { return (!trim_text(text)); };
-    (function() {
-        $.ajax({
-            type       : "POST",
-            contentType: "application/json",
-            dataType   : "json",
-            url        : "/Process/Run",
-            data       : JSON.stringify( { text: '_dummy_' } )
-        });
-    })();
 
     var processingTickCount = 1;
     function processing_tick() {

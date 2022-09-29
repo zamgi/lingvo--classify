@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("zamgi")]
 [assembly: AssemblyProduct("captcha")]
-[assembly: AssemblyCopyright("Copyright © zamgi 2014")]
+[assembly: AssemblyCopyright("Copyright © zamgi 2022")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -19,7 +19,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("f8ab6d6e-4c3a-40b6-8643-1aa46bb59007")]
+[assembly: Guid("6150F710-8FC7-42EB-B328-B2DC8B694111")]
 
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]

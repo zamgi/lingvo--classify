@@ -1,36 +1,23 @@
 ﻿using System;
 using System.Runtime.Caching;
 using System.Threading;
-using System.Threading.Tasks;
-
-using Microsoft.AspNetCore.Http;
 
 namespace captcha
 {
     /// <summary>
     /// 
     /// </summary>
-    public struct AntiBotConfig
+    public readonly struct AntiBotConfig
     {
-        public const string CAPTCHA_PAGE_URL = "~/Captcha.aspx";
         public const int    SAME_IP_BANNED_INTERVAL_IN_SECONDS  = 120;
 		public const int    SAME_IP_INTERVAL_REQUEST_IN_SECONDS = 10;
 		public const int    SAME_IP_MAX_REQUEST_IN_INTERVAL     = 3;
 
-        public HttpContext HttpContext;
-        public string      CaptchaPageUrl;
-        public int         SameIpBannedIntervalInSeconds;
-        public int         SameIpIntervalRequestInSeconds;
-        public int         SameIpMaxRequestInInterval;
-
-        public static AntiBotConfig CreateDefault( HttpContext httpContext ) => new AntiBotConfig()
-        {
-            HttpContext                    = httpContext,
-            CaptchaPageUrl                 = CAPTCHA_PAGE_URL,
-            SameIpBannedIntervalInSeconds  = SAME_IP_BANNED_INTERVAL_IN_SECONDS,
-            SameIpIntervalRequestInSeconds = SAME_IP_INTERVAL_REQUEST_IN_SECONDS,
-            SameIpMaxRequestInInterval     = SAME_IP_MAX_REQUEST_IN_INTERVAL,
-        };
+        //public HttpContext HttpContext { get; init; }
+        public string RemoteIpAddress                { get; init; }
+        public int    SameIpBannedIntervalInSeconds  { get; init; }
+        public int    SameIpIntervalRequestInSeconds { get; init; }
+        public int    SameIpMaxRequestInInterval     { get; init; }
     }
 
     /// <summary>
@@ -41,7 +28,7 @@ namespace captcha
         /// <summary>
         /// 
         /// </summary>
-        private class RequestMarker
+        private sealed class RequestMarker
         {
             private const int FALSE = 0;
             private const int TRUE  = ~FALSE;
@@ -58,7 +45,7 @@ namespace captcha
             private long _DateTimeTicks;
 
             public DateTime DateTime => new DateTime( _DateTimeTicks );
-            public int      Count => _Count;
+            public int      Count    => _Count;
             public bool     IsBanned => (_IsBanned != FALSE); 
 
             public void CountIncrement() => Interlocked.Increment( ref _Count );
@@ -66,9 +53,8 @@ namespace captcha
             {
                 Interlocked.Exchange( ref _IsBanned, TRUE );
                 Interlocked.Exchange( ref _DateTimeTicks, DateTime.Now.Ticks );
-                //_DateTime = DateTime.Now;
             }
-            public int  GetWaitRemainSeconds( ref AntiBotConfig config )
+            public int  GetWaitRemainSeconds( in AntiBotConfig config )
             {
                 var passSeconds = (DateTime.Now - this.DateTime).TotalSeconds;
                 int result;
@@ -80,152 +66,75 @@ namespace captcha
                 {
                     result = config.SameIpIntervalRequestInSeconds - Convert.ToInt32( passSeconds ) + 1;
                 }
-                return ((result > 0) ? result : 0);
+                return ((0 < result) ? result : 0);
             }
         }
 
         private const string KEY_CACHE_KEY = "SAME_IP_REQUEST";
 
         private AntiBotConfig _Config;
+        public AntiBot( AntiBotConfig config ) => _Config = config;
 
-        public AntiBot( AntiBotConfig config ) : this()
+        private string CACHE_KEY => (KEY_CACHE_KEY + ',' + _Config.RemoteIpAddress); 
+        private bool TryGetCurrentRequestMarker( out RequestMarker requestMarker ) 
         {
-            _Config = config;
-
-            if ( string.IsNullOrEmpty( _Config.CaptchaPageUrl ) )
-                _Config.CaptchaPageUrl = AntiBotConfig.CAPTCHA_PAGE_URL;
-
-            if ( _Config.SameIpBannedIntervalInSeconds <= 0 )
-                _Config.SameIpBannedIntervalInSeconds = AntiBotConfig.SAME_IP_BANNED_INTERVAL_IN_SECONDS;
-
-            if ( _Config.SameIpIntervalRequestInSeconds <= 0 )
-                _Config.SameIpIntervalRequestInSeconds = AntiBotConfig.SAME_IP_INTERVAL_REQUEST_IN_SECONDS;
-
-            if ( _Config.SameIpMaxRequestInInterval <= 0 )
-                _Config.SameIpMaxRequestInInterval = AntiBotConfig.SAME_IP_MAX_REQUEST_IN_INTERVAL;
+            requestMarker = MemoryCache.Default/*_Config.HttpContext.Cache*/[ CACHE_KEY ] as RequestMarker;
+            return (requestMarker != null);
         }
-
-        private string CACHE_KEY => (KEY_CACHE_KEY + ',' + _Config.HttpContext.Connection.RemoteIpAddress?.ToString() /*.UserHostAddress*/); 
-        private RequestMarker GetCurrentRequestMarker()
+        private void AddCurrentRequestMarker2Cache( RequestMarker requestMarker, int absoluteExpirationInCacheInSeconds )
         {
-            var obj = MemoryCache.Default/*_Config.HttpContext.Cache*/[ CACHE_KEY ];
-            if ( obj != null )
-            {
-                return ((RequestMarker) obj);
-            }
-            return (null);
-        }
-        private void PutCurrentRequestMarker2Cache( RequestMarker requestMarker, int absoluteExpirationInCacheInSeconds )
-        {
-            if ( requestMarker == null ) throw (new ArgumentNullException("requestMarker"));
+            if ( requestMarker == null ) throw (new ArgumentNullException( nameof(requestMarker) ));
 
-            MemoryCache.Default/*_Config.HttpContext.Cache*/.Remove( CACHE_KEY );
+            MemoryCache.Default.Remove( CACHE_KEY );
             MemoryCache.Default.Add( CACHE_KEY, requestMarker, new CacheItemPolicy()
             {
                 AbsoluteExpiration = requestMarker.DateTime.AddSeconds( Convert.ToDouble( absoluteExpirationInCacheInSeconds ) ),
                 SlidingExpiration  = TimeSpan.Zero,
                 Priority           = CacheItemPriority.NotRemovable,
             });
-            /*_Config.HttpContext.Cache.Add
-                (
-                CACHE_KEY,
-                requestMarker, 
-            //CacheDependency dependencies, DateTime absoluteExpiration, TimeSpan slidingExpiration, CacheItemPriority priority, CacheItemRemovedCallback onRemoveCallback//
-                null,
-                requestMarker.DateTime.AddSeconds( Convert.ToDouble( absoluteExpirationInCacheInSeconds ) ),
-                TimeSpan.Zero, 
-                CacheItemPriority.NotRemovable, 
-                null
-                );*/
         }
-        private void ClearCurrentRequestMarkerInCache() => MemoryCache.Default/*_Config.HttpContext.Cache*/.Remove( CACHE_KEY );
+        private void RemoveCurrentRequestMarkerFromCache() => MemoryCache.Default/*_Config.HttpContext.Cache*/.Remove( CACHE_KEY );
         private void BannedRequest( RequestMarker requestMarker )
         {
             requestMarker.Banned();
 
-            PutCurrentRequestMarker2Cache( requestMarker, _Config.SameIpBannedIntervalInSeconds + 1 );
+            AddCurrentRequestMarker2Cache( requestMarker, _Config.SameIpBannedIntervalInSeconds + 1 );
         }
 
-        public bool IsRequestValid()
-        {
-            var requestMarker = GetCurrentRequestMarker();
-            if ( requestMarker != null )
-            {
-                return (_Config.SameIpMaxRequestInInterval > requestMarker.Count);
-            }
-            return (true);
-        }
+        public bool IsRequestValid() => TryGetCurrentRequestMarker( out var requestMarker ) ? (requestMarker.Count < _Config.SameIpMaxRequestInInterval) : true; 
         public bool IsNeedRedirectOnCaptchaIfRequestNotValid()
         {
-            if ( !IsRequestValid() )
+            if ( !IsRequestValid() && TryGetCurrentRequestMarker( out var requestMarker ) )
             {
-                var requestMarker = GetCurrentRequestMarker();
-                if ( requestMarker != null )
-                {
-                    //if ( requestMarker.IsBanned )
-                    //{
-                        //---------------------------//
-                        //requestMarker.CountIncrement();
-                        //BannedRequest( requestMarker );
-                        //---------------------------//
+                //if ( requestMarker.IsBanned )
+                //{
+                    //---------------------------//
+                    //requestMarker.CountIncrement();
+                    //BannedRequest( requestMarker );
+                    //---------------------------//
 
-                        //_Config.HttpContext.Response.Redirect( _Config.CaptchaPageUrl, true );
-                    //}
-                    //else
-                    //{
-                        var waitRemainSeconds = requestMarker.GetWaitRemainSeconds( ref _Config );
-                        if ( waitRemainSeconds > 3 )  
-                        {
-                            BannedRequest( requestMarker );
+                    //_Config.HttpContext.Response.Redirect( _Config.CaptchaPageUrl, true );
+                //}
+                //else
+                //{
+                    var waitRemainSeconds = requestMarker.GetWaitRemainSeconds( _Config );
+                    if ( 3 < waitRemainSeconds )  
+                    {
+                        BannedRequest( requestMarker );
 
-                            return (true); // _Config.HttpContext.Response.Redirect( _Config.CaptchaPageUrl, true );
-                        }
-                        else
-                        {
-                            Thread.Sleep( Math.Max( 1, waitRemainSeconds ) * 1000 );
-                        }
-                    //}
-                }
+                        return (true); // _Config.HttpContext.Response.Redirect( _Config.CaptchaPageUrl, true );
+                    }
+                    else
+                    {
+                        Thread.Sleep( Math.Max( 1, waitRemainSeconds ) * 1000 );
+                    }
+                //}
             }
             return (false);
         }
-        public void RedirectOnCaptchaIfRequestNotValid()
-        {
-            if ( !IsRequestValid() )
-            {
-                var requestMarker = GetCurrentRequestMarker();
-                if ( requestMarker != null )
-                {
-                    //if ( requestMarker.IsBanned )
-                    //{
-                        //---------------------------//
-                        //requestMarker.CountIncrement();
-                        //BannedRequest( requestMarker );
-                        //---------------------------//
-
-                        //_Config.HttpContext.Response.Redirect( _Config.CaptchaPageUrl, true );
-                    //}
-                    //else
-                    //{
-                        var waitRemainSeconds = requestMarker.GetWaitRemainSeconds( ref _Config );
-                        if ( waitRemainSeconds > 3 )  
-                        {
-                            BannedRequest( requestMarker );
-
-                            _Config.HttpContext.Response.Redirect( _Config.CaptchaPageUrl, true );
-                        }
-                        else
-                        {
-                            Thread.Sleep( Math.Max( 1, waitRemainSeconds ) * 1000 );
-                        }
-                    //}
-                }
-            }
-        }
         public void MarkRequest()
         {
-            var requestMarker = GetCurrentRequestMarker();
-            if ( requestMarker != null )
+            if ( TryGetCurrentRequestMarker( out var requestMarker ) )
             {
                 requestMarker.CountIncrement();
             }
@@ -233,26 +142,12 @@ namespace captcha
             {
                 requestMarker = new RequestMarker();
 
-                PutCurrentRequestMarker2Cache( requestMarker, _Config.SameIpIntervalRequestInSeconds );
+                AddCurrentRequestMarker2Cache( requestMarker, _Config.SameIpIntervalRequestInSeconds );
             }
         }
-        public void MakeAllowRequests() => ClearCurrentRequestMarkerInCache();
-        public int  GetWaitRemainSeconds()
-        {
-            var requestMarker = GetCurrentRequestMarker();
-            if ( requestMarker != null )
-            {
-                return (requestMarker.GetWaitRemainSeconds( ref _Config ));
-            }
-            return (0);
-        }
+        public void MakeAllowRequests() => RemoveCurrentRequestMarkerFromCache();
+        public int GetWaitRemainSeconds() => TryGetCurrentRequestMarker( out var requestMarker ) ? requestMarker.GetWaitRemainSeconds( _Config ) : 0;
 
-        public async Task SendGotoOnCaptchaJsonResponse()
-        {
-            _Config.HttpContext.Response.ContentType = "application/json";
-            await _Config.HttpContext.Response.WriteAsJsonAsync( new { err = "goto-on-captcha" } );
-            //---_Config.HttpContext.Response.Write( "{ \"err\": \"goto-on-captcha\" }" );
-            //_Config.HttpContext.Response.End();
-        }
+        public static object CreateGotoOnCaptchaResponseObj() => new { err = "goto-on-captcha" };
     }
 }

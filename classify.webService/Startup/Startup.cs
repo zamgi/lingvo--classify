@@ -24,6 +24,8 @@ namespace classify.webService
     /// </summary>
     internal sealed class Startup
     {
+        public const string INDEX_PAGE_PATH = "/index.html";
+
         public void ConfigureServices( IServiceCollection services )
         {
             services.AddControllers().AddJsonOptions( options =>
@@ -40,10 +42,11 @@ namespace classify.webService
                 opts.MultipartBodyLengthLimit    = int.MaxValue; // if don't set default value is: 128 MB
                 opts.MultipartHeadersLengthLimit = int.MaxValue;
             });
+            services.AddMvc();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure( IApplicationBuilder app, IWebHostEnvironment env )
+        public void Configure( /*WebApplication*/IApplicationBuilder app, IWebHostEnvironment env )
         {
             if ( env.IsDevelopment() )
             {
@@ -57,7 +60,22 @@ namespace classify.webService
             app.UseRouting();
             app.UseAuthorization();
 
-            app.UseEndpoints( endpoints => endpoints.MapControllers() );
+            app.UseEndpoints( endpoints =>
+            {
+                endpoints.MapControllers();
+                endpoints.MapRazorPages();
+                endpoints.MapControllerRoute( name: "default", pattern: $"{{controller}}/{{action}}/{{id?}}" );
+            });
+
+            app.Use( async (ctx, next) =>
+            {
+                await next( ctx );
+                
+                if ( (ctx.Response.StatusCode == 404) && (ctx.Request.Path == INDEX_PAGE_PATH) )
+                {
+                    ctx.Response.Redirect( INDEX_PAGE_PATH );
+                }
+            });
             //-------------------------------------------------------------//
 #if DEBUG
             OpenBrowserIfRunAsConsole( app );
