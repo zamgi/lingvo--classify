@@ -7,6 +7,7 @@ using System.Net.Mime;
 using System.Runtime.Caching;
 
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using BackgroundNoiseLevel = captcha.CaptchaImage.BackgroundNoiseLevel;
 using FontWarpFactor = captcha.CaptchaImage.FontWarpFactor;
 using LineNoiseLevel = captcha.CaptchaImage.LineNoiseLevel;
@@ -43,11 +44,11 @@ namespace captcha
             public LineNoiseLevel LineNoise { get; init; }
 
 
-            [DefaultValue(50), Description("Height of generated CAPTCHA image.")]
+            [DefaultValue(100), Description("Height of generated CAPTCHA image.")]
             public int Height { get; init; }
 
 
-            [DefaultValue(180), Description("Width of generated CAPTCHA image.")]
+            [DefaultValue(300), Description("Width of generated CAPTCHA image.")]
             public int Width { get; init; }
 
 
@@ -80,15 +81,15 @@ namespace captcha
                 NoiseColor        = Color.Black,
 
                 CheckIgnoreCase = false,
-                Width           = 180,
-                Height          = 50,
+                Width           = 300, //180,
+                Height          = 100, //60,
                 LineNoise       = LineNoiseLevel.None,
                 FontWarp        = FontWarpFactor.Low,
                 TextChars       = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789",
                 TextLength      = 5,
             };                
         }
-        public static string CreateNewCaptcha( in CreateNewCaptchaParams? pp = null )
+        public static string CreateNew( in CreateNewCaptchaParams? pp = null )
         {
             var p = (pp.HasValue ? pp.Value : CreateNewCaptchaParams.CreateDefault());
 
@@ -131,10 +132,14 @@ namespace captcha
             public bool CaptchaIgnoreCase { get; init; }
             public int? TimeoutSecondsMin { get; init; }
         }
-        public static bool ValidateCaptcha( in ValidateCaptchaParams p, out string errorMessage )
+        public static bool Validate( in ValidateCaptchaParams p, out string errorMessage )
         {
-            if ( p.CaptchaImageUniqueId.IsNullOrWhiteSpace() ||
-                 p.CaptchaUserText     .IsNullOrWhiteSpace() )
+            if ( p.CaptchaUserText.IsNullOrWhiteSpace() )
+            {
+                errorMessage = "Empty user input text";
+                return (false);
+            }
+            if ( p.CaptchaImageUniqueId.IsNullOrWhiteSpace() )
             {
                 errorMessage = "Bad input params";
                 return (false);
@@ -165,8 +170,7 @@ namespace captcha
             return (true);
         }
 
-
-        public static bool TryGetCaptchaImage( HttpContext context, out byte[] bytes, out string contentType )
+        public static bool TryGetImage( HttpContext context, out byte[] bytes, out string contentType )
         {
             var key = (string) context.Request.Query[ "guid" ];
             if ( !key.IsNullOrWhiteSpace() && (MemoryCache.Default.Get( key ) is CaptchaImage captchaImage) )
@@ -188,6 +192,9 @@ namespace captcha
             bytes = default;
             return (false);
         }
+
+
+        public static IMvcBuilder AddCaptchaController( this IMvcBuilder mvcBuilder ) => mvcBuilder.AddApplicationPart( typeof(CaptchaController).Assembly ).AddControllersAsServices();
     }
 
     /// <summary>

@@ -1,11 +1,11 @@
-﻿@using classify.webService
+﻿@using captcha
 @model CaptchaVM
 
 <!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <title>Автоклассификация текста на русском языке</title>
+    <title>@(Model.CaptchaPageTitle ?? "Captcha")</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <style type="text/css">
         body { background: #b6b7bc; font-size: .80em; font-family: "Helvetica Neue", "Lucida Grande", "Segoe UI", Arial, Helvetica, Verdana, sans-serif; margin: 0px; padding: 0px; color: #696969; }
@@ -13,7 +13,7 @@
     </style>
 </head>
 <body>
-    <form action="/Process/Captcha_Process" method="post">
+    <form action="/Captcha/Process" method="post">
         <div class="page" style="background-color:#FBFBFB; margin-top: 30px;">
         <div style="text-align: center; padding: 30px;">
             @*
@@ -30,7 +30,7 @@
             <table style="border: 1px solid silver; border-collapse: separate; border-spacing: 5px;">
                 <tr>
                     <td style="text-align: center">
-                        <img src="/Process/Captcha_Image?guid=@Model.CaptchaImageUniqueId" style="height: 60px; width: 200px;" />
+                        <img src="/Captcha/GetImage?guid=@Model.CaptchaImageUniqueId" style="height: 100px; width: 300px; border: 1px dotted silver;" />
                         <input id="CaptchaImageUniqueId" name="CaptchaImageUniqueId" type="hidden" value="@Model.CaptchaImageUniqueId" />
                     </td>
                 </tr>

@@ -45,7 +45,7 @@ $(document).ready(function () {
         setTimeout(function () { $("#text").val(DEFAULT_TEXT).focus(); }, 100);
     });
 
-    $('#mainPageContent').on('click', '#processButton', function () {
+    $('#processButton').click(function () {
         if($(this).hasClass('disabled')) return (false);
 
         var text = getText( $("#text") );
@@ -70,7 +70,7 @@ $(document).ready(function () {
             success: function (responce) {
                 if (responce.err) {
                     if (responce.err === "goto-on-captcha") {
-                        window.location.href = "/Process/Captcha";
+                        window.location.href = "/Captcha/GetNew";
                     } else {
                         processing_end();
                         $('.result-info').addClass('error').text(responce.err);

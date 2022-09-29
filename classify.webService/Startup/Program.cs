@@ -9,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.EventLog;
 
+using captcha;
 using lingvo.classify;
 
 namespace classify.webService
@@ -46,7 +47,7 @@ namespace classify.webService
                                .ConfigureLogging( loggingBuilder => loggingBuilder.ClearProviders().AddDebug().AddConsole().AddEventSourceLogger()
                                                               .AddEventLog( new EventLogSettings() { LogName = SERVICE_NAME, SourceName = SERVICE_NAME } ) )
                                //---.UseWindowsService()
-                               .ConfigureServices( (hostContext, services) => services.AddSingleton< IConfig >( cfg ).AddSingleton( concurrentFactory ) )
+                               .ConfigureServices( (hostContext, services) => services.AddSingleton< IConfig >( cfg ).AddSingleton< IAntiBotConfig >( cfg ).AddSingleton( concurrentFactory ) )
                                .ConfigureWebHostDefaults( webBuilder => webBuilder.UseStartup< Startup >() )
                                .Build();
                 hostApplicationLifetime = host.Services.GetService< IHostApplicationLifetime >();

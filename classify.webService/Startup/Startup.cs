@@ -17,6 +17,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting.WindowsServices;
 #endif
 
+using captcha;
+
 namespace classify.webService
 {
     /// <summary>
@@ -28,11 +30,13 @@ namespace classify.webService
 
         public void ConfigureServices( IServiceCollection services )
         {
-            services.AddControllers().AddJsonOptions( options =>
-            {
-                options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-                options.JsonSerializerOptions.Converters.Add( new JsonStringEnumConverter() );
-            });
+            services.AddControllers()
+                    .AddCaptchaController()
+                    .AddJsonOptions( options =>
+                    {
+                        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+                        options.JsonSerializerOptions.Converters.Add( new JsonStringEnumConverter() );
+                    });
 
             services.Configure< IISServerOptions >( opts => opts.MaxRequestBodySize = int.MaxValue );
             services.Configure< KestrelServerOptions >( opts => opts.Limits.MaxRequestBodySize = int.MaxValue );
@@ -46,7 +50,7 @@ namespace classify.webService
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure( /*WebApplication*/IApplicationBuilder app, IWebHostEnvironment env )
+        public void Configure( IApplicationBuilder app, IWebHostEnvironment env )
         {
             if ( env.IsDevelopment() )
             {

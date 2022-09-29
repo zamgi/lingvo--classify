@@ -12,7 +12,7 @@ namespace classify.webService
     /// <summary>
     /// 
     /// </summary>
-    public interface IConfig
+    public interface IConfig : IAntiBotConfig
     {
         int CLASS_THRESHOLD_PERCENT { get; }
         int CONCURRENT_FACTORY_INSTANCE_COUNT { get; }
@@ -20,25 +20,20 @@ namespace classify.webService
         int MODEL_ROW_CAPACITY { get; }
         string URL_DETECTOR_RESOURCES_XML_FILENAME { get; }
 
-        string[] CLASS_INDEX_NAMES { get; }
-        string[] MODEL_FILENAMES { get; }
+        IReadOnlyList< string > CLASS_INDEX_NAMES { get; }
+        IReadOnlyList< string > MODEL_FILENAMES   { get; }
 
         string ClassIndex2Text( int classIndex );
-
-
-        int SAME_IP_INTERVAL_REQUEST_IN_SECONDS  { get; }
-        int SAME_IP_MAX_REQUEST_IN_INTERVAL      { get; }
-        int SAME_IP_BANNED_INTERVAL_IN_SECONDS   { get; }
     }
 
     /// <summary>
     /// 
     /// </summary>
-    internal sealed class Config : IConfig
+    internal sealed class Config : IConfig, IAntiBotConfig
     {
         public Config()
         {
-            var lst = new List<string>();
+            var lst = new List< string >();
             for ( var i = 0; ; i++ )
             {
                 var value = ConfigurationManager.AppSettings[ "CLASS_INDEX_" + i ];
@@ -46,21 +41,21 @@ namespace classify.webService
                     break;
                 lst.Add( value );
             }
-            CLASS_INDEX_NAMES = lst.ToArray();
+            CLASS_INDEX_NAMES = lst;
 
 
-            var model_folder = ConfigurationManager.AppSettings[ "MODEL_FOLDER" ];
+            var model_folder    = ConfigurationManager.AppSettings[ "MODEL_FOLDER"    ];
             var model_filenames = ConfigurationManager.AppSettings[ "MODEL_FILENAMES" ];
 
             MODEL_FILENAMES = (from raw_model_filename in model_filenames.Split( new[] { ';' }, StringSplitOptions.RemoveEmptyEntries )
                                let model_filename = raw_model_filename.Trim()
                                let full_model_filename = Path.Combine( model_folder, model_filename )
                                select full_model_filename
-                              ).ToArray();
+                              ).ToList();
         }
 
-        public string[] MODEL_FILENAMES { get; }
-        public string[] CLASS_INDEX_NAMES { get; }
+        public IReadOnlyList< string > MODEL_FILENAMES   { get; }
+        public IReadOnlyList< string > CLASS_INDEX_NAMES { get; }
 
         public string URL_DETECTOR_RESOURCES_XML_FILENAME { get; } = ConfigurationManager.AppSettings[ "URL_DETECTOR_RESOURCES_XML_FILENAME" ];
         public NGramsType MODEL_NGRAMS_TYPE { get; } = (NGramsType) Enum.Parse( typeof( NGramsType ), ConfigurationManager.AppSettings[ "MODEL_NGRAMS_TYPE" ], true );
@@ -69,17 +64,18 @@ namespace classify.webService
 
         public int CONCURRENT_FACTORY_INSTANCE_COUNT { get; } = int.Parse( ConfigurationManager.AppSettings[ "CONCURRENT_FACTORY_INSTANCE_COUNT" ] );
 
-        public int SAME_IP_INTERVAL_REQUEST_IN_SECONDS  { get; } = int.TryParse( ConfigurationManager.AppSettings[ "SAME_IP_INTERVAL_REQUEST_IN_SECONDS" ], out var i ) ? i : AntiBotConfig.SAME_IP_BANNED_INTERVAL_IN_SECONDS;
-        public int SAME_IP_MAX_REQUEST_IN_INTERVAL      { get; } = int.TryParse( ConfigurationManager.AppSettings[ "SAME_IP_MAX_REQUEST_IN_INTERVAL"     ], out var i ) ? i : AntiBotConfig.SAME_IP_MAX_REQUEST_IN_INTERVAL;
-        public int SAME_IP_BANNED_INTERVAL_IN_SECONDS   { get; } = int.TryParse( ConfigurationManager.AppSettings[ "SAME_IP_BANNED_INTERVAL_IN_SECONDS"  ], out var i ) ? i : AntiBotConfig.SAME_IP_BANNED_INTERVAL_IN_SECONDS;
+        public int? SameIpBannedIntervalInSeconds  { get; } = int.TryParse( ConfigurationManager.AppSettings[ "SAME_IP_BANNED_INTERVAL_IN_SECONDS"  ], out var i ) ? i : null;
+        public int? SameIpIntervalRequestInSeconds { get; } = int.TryParse( ConfigurationManager.AppSettings[ "SAME_IP_INTERVAL_REQUEST_IN_SECONDS" ], out var i ) ? i : null;
+        public int? SameIpMaxRequestInInterval     { get; } = int.TryParse( ConfigurationManager.AppSettings[ "SAME_IP_MAX_REQUEST_IN_INTERVAL"     ], out var i ) ? i : null;
+        public string CaptchaPageTitle => "Автоклассификация текста на русском языке";
 
         public string ClassIndex2Text( int classIndex )
         {
-            if ( 0 <= classIndex && classIndex < CLASS_INDEX_NAMES.Length )
+            if ( 0 <= classIndex && classIndex < CLASS_INDEX_NAMES.Count )
             {
                 return (CLASS_INDEX_NAMES[ classIndex ]);
             }
-            return ("[class-index: " + classIndex + "]");
+            return ($"[class-index: {classIndex}]");
         }
     }
 }

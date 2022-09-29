@@ -2,9 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-using Microsoft.AspNetCore.Http;
-
-using captcha;
 using lingvo.classify;
 using JP = System.Text.Json.Serialization.JsonPropertyNameAttribute;
 
@@ -61,58 +58,5 @@ namespace classify.webService
         [JP("ip")     ] public InitParamsVM                   init_params       { get; }
         [JP("classes")] public IReadOnlyList< classify_info > classify_infos    { get; }
         [JP("err")    ] public string                         exception_message { get; }
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public sealed class CaptchaVM
-    {
-        public int    WaitRemainSeconds    { get; init; }
-        public string AllowContinueUrl     { get; init; } = Startup.INDEX_PAGE_PATH; //"/index.html";
-        public string CaptchaImageUniqueId { get; init; }
-        
-        
-        public string ErrorMessage { get; init; }
-        public bool HasError => (ErrorMessage != null);
-    }
-    /// <summary>
-    /// 
-    /// </summary>
-    public sealed class Captcha_ProcessVM
-    {
-        public string CaptchaUserText      { get; set; }
-        public string CaptchaImageUniqueId { get; set; }
-        public string RedirectLocation     { get; set; } = '~' + Startup.INDEX_PAGE_PATH; //"~/index.html";
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    internal static class AntiBotHelper
-    {
-        private const string LOAD_MODEL_DUMMY_TEXT = "_dummy_";
-
-        public static AntiBot ToAntiBot( this HttpContext httpContext, IConfig config )
-        {
-            var cfg = new AntiBotConfig() 
-            { 
-                //HttpContext                    = httpContext, 
-                RemoteIpAddress                = httpContext.Connection.RemoteIpAddress?.ToString(),
-                SameIpBannedIntervalInSeconds  = config.SAME_IP_BANNED_INTERVAL_IN_SECONDS,
-                SameIpIntervalRequestInSeconds = config.SAME_IP_INTERVAL_REQUEST_IN_SECONDS,
-                SameIpMaxRequestInInterval     = config.SAME_IP_MAX_REQUEST_IN_INTERVAL,
-            };
-            var antiBot = new AntiBot( cfg );
-            return (antiBot);
-        }
-
-        public static void MarkRequestEx( this AntiBot antiBot, string text )
-        {
-            if ( text != LOAD_MODEL_DUMMY_TEXT )
-            {
-                antiBot.MarkRequest();
-            }
-        }
     }
 }
