@@ -13,7 +13,6 @@ namespace classify.webService
     public struct InitParamsVM
     {
         public string Text { get; set; }
-
 #if DEBUG
         public override string ToString() => Text;
 #endif
@@ -27,11 +26,11 @@ namespace classify.webService
         /// <summary>
         /// 
         /// </summary>
-        public struct classify_info
+        public readonly struct classify_info
         {
-            [JP("i")] public int    class_index { get; set; }
-            [JP("n")] public string class_name  { get; set; }
-            [JP("p")] public string percent     { get; set; }
+            [JP("i")] public int    class_index { get; init; }
+            [JP("n")] public string class_name  { get; init; }
+            [JP("p")] public string percent     { get; init; }
         }
 
         public ResultVM( in InitParamsVM m, Exception ex ) : this() => (init_params, exception_message) = (m, ex.Message);

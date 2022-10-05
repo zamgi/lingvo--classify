@@ -1,6 +1,7 @@
 ﻿using System;
 
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 #if DEBUG
 using Microsoft.Extensions.Logging;
 #endif
@@ -27,7 +28,7 @@ namespace classify.webService.Controllers
 #endif
         #endregion
 
-        [HttpPost] public IActionResult Run( [FromBody] InitParamsVM m )
+        [HttpPost] public async Task< IActionResult > Run( [FromBody] InitParamsVM m )
         {
             try
             {
@@ -45,7 +46,7 @@ namespace classify.webService.Controllers
 #if DEBUG
                 _Logger.LogInformation( $"start Find '{m.Text}'..." );
 #endif
-                var p = _ConcurrentFactory.Run( m.Text );
+                var p = await _ConcurrentFactory.Run( m.Text );
                 var result = new ResultVM( m, p, _ConcurrentFactory.Config );
 #if DEBUG
                 _Logger.LogInformation( $"end Find '{m.Text}'." );

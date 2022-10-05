@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 
 using lingvo.tokenizing;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace lingvo.classify
 {
@@ -159,8 +160,7 @@ namespace lingvo.classify
 
             var classes = classes_t.GetClasses( classifyInfos );
 
-            Console.WriteLine( $"text: '{text.Cut().Norm()}'" );
-            Console.WriteLine( classes.Any() ? "  " + string.Join( "\r\n  ", classes ) : "  [text class is not defined]" );
+            classes.Print2Console( text );
         }
         private static void Run_2( string path )
         {
@@ -175,14 +175,18 @@ namespace lingvo.classify
                 var classes = classes_t.GetClasses( classifyInfos );
 
                 Console_Write( $"{++n}.) ", ConsoleColor.DarkGray );
-                Console.Write( $"text: " );
-                Console_WriteLine( $"'{text.Cut().Norm()}'", ConsoleColor.DarkGray );
-                if ( classes.Any() )
-                Console.WriteLine( "  " + string.Join( "\r\n  ", classes ) );
-                else
-                Console_WriteLine( "  [text class is not defined]", ConsoleColor.DarkRed );
-                Console.WriteLine();
+                classes.Print2Console( text );
             }
+        }
+        private static void Print2Console( this IList< classes_t > classes, string text )
+        {
+            Console.Write( $"text: " );
+            Console_WriteLine( $"'{text.Cut().Norm()}'", ConsoleColor.DarkGray );
+            if ( classes.Any() )
+                Console.WriteLine( "  " + string.Join( "\r\n  ", classes ) );
+            else
+                Console_WriteLine( "  [text class is not defined]", ConsoleColor.DarkRed );
+            Console.WriteLine();
         }
 
         private static IEnumerable< string > EnumerateAllFiles( string path, string searchPattern = "*.txt" )

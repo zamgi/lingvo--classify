@@ -16,9 +16,6 @@ namespace lingvo.core
         /// <summary>
         /// 
         /// </summary>
-        /// <summary>
-        /// 
-        /// </summary>
         [M(O.AggressiveInlining)] public static string ToUpperInvariant( string value )
         {
             var len = value.Length;

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
-
+using System.Threading.Tasks;
 using lingvo.classify;
 
 namespace classify.webService
@@ -12,7 +12,7 @@ namespace classify.webService
     /// </summary>
 	public sealed class ConcurrentFactory
 	{
-		private readonly Semaphore                     _Semaphore;
+		private readonly SemaphoreSlim                 _Semaphore;
         private readonly ConcurrentStack< Classifier > _Stack;
 
         public ConcurrentFactory( ClassifierConfig config, IModel model, IConfig cfg )
@@ -24,7 +24,7 @@ namespace classify.webService
 			var instanceCount = cfg.CONCURRENT_FACTORY_INSTANCE_COUNT;
             if ( instanceCount <= 0 ) throw (new ArgumentException( nameof(instanceCount) ));
 
-            _Semaphore = new Semaphore( instanceCount, instanceCount );
+            _Semaphore = new SemaphoreSlim( instanceCount, instanceCount );
             _Stack     = new ConcurrentStack< Classifier >();
             for ( int i = 0; i < instanceCount; i++ )
 			{
@@ -34,9 +34,9 @@ namespace classify.webService
 
 		public IConfig Config { get; }
 
-        public IList< ClassifyInfo > Run( string text )
+        public async Task< IList< ClassifyInfo > > Run( string text )
 		{
-			_Semaphore.WaitOne();
+			await _Semaphore.WaitAsync().ConfigureAwait( false );
 			var worker = default(Classifier);
 			var result = default(IList< ClassifyInfo >);
 			try

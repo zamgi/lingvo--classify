@@ -9,32 +9,32 @@ namespace lingvo.core.algorithm
     /// <summary>
     /// 
     /// </summary>
-    internal class word_t
+    internal sealed class word_t
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        public sealed class Comparer : IComparer< word_t >
+        {
+            public static Comparer Inst { get; } = new Comparer();
+            private Comparer() { }
+
+            public int Compare( word_t x, word_t y )
+            {
+                //return (y.Count - x.Count);
+            
+                var d = y.Count - x.Count;            
+                if ( d != 0 )
+                    return (d);
+
+                return (string.CompareOrdinal( x.Value, y.Value ));
+            }
+        }
+
         public string Value;
         public int    Count;
 
         public override string ToString() => (Value + ":" + Count);
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    internal sealed class word_t_comparer : IComparer< word_t >
-    {
-        public static word_t_comparer Inst { get; } = new word_t_comparer();
-        private word_t_comparer() { }
-
-        public int Compare( word_t x, word_t y )
-        {
-            //return (y.Count - x.Count);
-            
-            var d = y.Count - x.Count;            
-            if ( d != 0 )
-                return (d);
-
-            return (string.CompareOrdinal( x.Value, y.Value ));
-        }
     }
 
     /// <summary>
@@ -61,15 +61,15 @@ namespace lingvo.core.algorithm
     /// <summary>
     /// 
     /// </summary>
-    internal class tfidf
+    internal sealed class TfIdf
     {
         /// <summary>
         /// 
         /// </summary>
-        public class result
+        public sealed class Result
         {
-            public string[]  Words { get; internal set; }
-            public float[][] TFiDF { get; internal set; }                        
+            public string[]  Words { get; init; }
+            public float[][] TFiDF { get; init; }                        
         }
         
         private readonly NGramsEnum               _Ngrams;
@@ -77,9 +77,9 @@ namespace lingvo.core.algorithm
         private readonly List< int >              _WordsCountByDocList;
         private HashSet< string >                 _WordsByDocsHashset;
         private List< Dictionary< string, int > > _DocWordsList;
-        private readonly StringBuilder            _Sb;
+        private readonly StringBuilder            _Buf;
         
-        public tfidf( NGramsEnum ngrams, D_ParamEnum d_param )
+        public TfIdf( NGramsEnum ngrams, D_ParamEnum d_param )
         {
             _Ngrams  = ngrams;
             _D_param = d_param;
@@ -88,7 +88,7 @@ namespace lingvo.core.algorithm
             _DocWordsList       = new List< Dictionary< string, int > >();
 
             _WordsCountByDocList = new List< int >();
-            _Sb                  = new StringBuilder();
+            _Buf                  = new StringBuilder();
         }
         
         public void AddDocument( IList< string > words )
@@ -108,10 +108,7 @@ namespace lingvo.core.algorithm
         }
 
         #region [.begin-end by words.]
-        public void BeginAddDocumentWords()
-        {
-            _DocumentNgrams_1 = new Dictionary< string, int >();
-        }
+        public void BeginAddDocumentWords() => _DocumentNgrams_1 = new Dictionary< string, int >();
         public void AddDocumentWords( Dictionary< string, int > dict )
         {
             //-2-
@@ -182,7 +179,7 @@ namespace lingvo.core.algorithm
                 case NGramsEnum.ngram_4:
                     if ( _Word_prev3 != null )
                     {
-                        _DocumentNgrams_4.AddOrUpdate( _Sb.Clear()
+                        _DocumentNgrams_4.AddOrUpdate( _Buf.Clear()
                                                           .Append( _Word_prev3 ).Append( ' ' )
                                                           .Append( _Word_prev2 ).Append( ' ' )
                                                           .Append( _Word_prev1 ).Append( ' ' )
@@ -196,7 +193,7 @@ namespace lingvo.core.algorithm
                 case NGramsEnum.ngram_3:
                     if ( _Word_prev2 != null )
                     {
-                        _DocumentNgrams_3.AddOrUpdate( _Sb.Clear()
+                        _DocumentNgrams_3.AddOrUpdate( _Buf.Clear()
                                                           .Append( _Word_prev2 ).Append( ' ' )
                                                           .Append( _Word_prev1 ).Append( ' ' )
                                                           .Append( word )
@@ -209,7 +206,7 @@ namespace lingvo.core.algorithm
                 case NGramsEnum.ngram_2:
                     if ( _Word_prev1 != null )
                     {
-                        _DocumentNgrams_2.AddOrUpdate( _Sb.Clear()
+                        _DocumentNgrams_2.AddOrUpdate( _Buf.Clear()
                                                           .Append( _Word_prev1 ).Append( ' ' )
                                                           .Append( word )
                                                           .ToString() 
@@ -260,13 +257,10 @@ namespace lingvo.core.algorithm
             _DocumentNgrams_1  = null;
         }
 
-        public bool CurrentDocumentHasWords
-        {
-            get { return (_DocumentWordCount != 0); }
-        }
+        public bool CurrentDocumentHasWords => (_DocumentWordCount != 0);
         #endregion
 
-        unsafe public result Process()
+        unsafe public Result Process()
         {
             var docCount  = _DocWordsList.Count;
             var wordCount = _WordsByDocsHashset.Count;
@@ -297,7 +291,7 @@ namespace lingvo.core.algorithm
                     }
                 }
 
-                #region [.commented.]
+                #region comm.
                 /*
                 int countWordInDoc = 0;
                 for ( var i = 0; i < docCount; i++ )
@@ -367,7 +361,7 @@ namespace lingvo.core.algorithm
             GC.Collect();
 
             //result
-            var result = new result() 
+            var result = new Result() 
             { 
                 Words = tfidf_words, 
                 TFiDF = tfidf_matrix 
@@ -382,15 +376,14 @@ namespace lingvo.core.algorithm
             var tf_matrix = Create2DemensionMatrix( wordCount, docCount );
             var tfidf_words = new string[ wordCount ];
             var idf_matrix  = new float [ wordCount ];            
-            var count       = default(int);
-            int wordNumber  = 0;            
+            int wordNumber  = 0; 
             foreach ( var w in _WordsByDocsHashset )
             {
                 int countWordInDoc = 0;
                 for ( var i = 0; i < docCount; i++ )
                 {
                     var dict = _DocWordsList[ i ];
-                    if ( dict.TryGetValue( w, out count ) )
+                    if ( dict.TryGetValue( w, out var count ) )
                     {
                         tf_matrix[ wordNumber ][ i ] = (1.0f * count) / dict.Count;
 
@@ -432,23 +425,16 @@ namespace lingvo.core.algorithm
                 }
             }
 
-            tf_matrix  = null;
-            idf_matrix = null;
-            GC.Collect();
-
             //result
             var resultDict = new Dictionary< string, float >( tfidf_words.Length );
             for ( int i = 0, len = tfidf_words.Length; i < len; i++ )
             {
                 resultDict.Add( tfidf_words[ i ], tfidf_matrix[ i ][ 0 ] );
             }
-            tfidf_words  = null;
-            tfidf_matrix = null;
-            GC.Collect();
 
             return (resultDict);
         }
-        public result Process_BM25()
+        public Result Process_BM25()
         {
             /*
             Создать функцию bool tfidf_TFiDF_BM25_cpp, аналогичную bool tfidf_TFiDF_cpp за исключением расчета самого веса 
@@ -469,8 +455,7 @@ namespace lingvo.core.algorithm
             
             var tf_matrix = Create2DemensionMatrix( wordCount, docCount );
             var tfidf_words = new string[ wordCount ];
-            var idf_matrix         = new float [ wordCount ];            
-            var count       = default(int);
+            var idf_matrix  = new float [ wordCount ];            
             int wordNumber  = 0;            
             foreach ( var w in _WordsByDocsHashset )
             {
@@ -478,7 +463,7 @@ namespace lingvo.core.algorithm
                 for ( var i = 0; i < docCount; i++ )
                 {
                     var dict = _DocWordsList[ i ];
-                    if ( dict.TryGetValue( w, out count ) )
+                    if ( dict.TryGetValue( w, out var count ) )
                     {
                         var dl = _WordsCountByDocList[ i ];
                         tf_matrix[ wordNumber ][ i ] = (float) ((3.0f * count) / (2.0f * (0.25f + 0.75f * (dl / dlAvg)) + count));
@@ -520,15 +505,11 @@ namespace lingvo.core.algorithm
                     tfidf_matrix_row[ j ] = tf_matrix_row[ j ] * idf;
                 }
             }
-
-            tf_matrix  = null;
-            idf_matrix = null;
-            GC.Collect();
             
             //result
-            return (new result() { Words = tfidf_words, TFiDF = tfidf_matrix });
+            return (new Result() { Words = tfidf_words, TFiDF = tfidf_matrix });
         }
-        public result Process_R()
+        public Result Process_R()
         {
             /*
             Создать функцию bool tfidf_RTFiDF_cpp, аналогичную bool tfidf_TFiDF_cpp за исключением расчета самого веса 
@@ -546,8 +527,7 @@ namespace lingvo.core.algorithm
             
             var tf_matrix = Create2DemensionMatrix( wordCount, docCount );
             var tfidf_words = new string[ wordCount ];
-            var idf_matrix         = new float [ wordCount ];            
-            var count       = default(int);
+            var idf_matrix  = new float [ wordCount ];            
             int wordNumber  = 0;            
             foreach ( var w in _WordsByDocsHashset )
             {
@@ -555,7 +535,7 @@ namespace lingvo.core.algorithm
                 for ( var i = 0; i < docCount; i++ )
                 {
                     var dict = _DocWordsList[ i ];
-                    if ( dict.TryGetValue( w, out count ) )
+                    if ( dict.TryGetValue( w, out var count ) )
                     {
                         wordCountInAllDocs += count;
                     }
@@ -607,12 +587,8 @@ namespace lingvo.core.algorithm
                 }
             }
 
-            tf_matrix  = null;
-            idf_matrix = null;
-            GC.Collect();
-
             //result
-            return (new result() { Words = tfidf_words, TFiDF = tfidf_matrix });
+            return (new Result() { Words = tfidf_words, TFiDF = tfidf_matrix });
         }
             
         private Dictionary< string, int > FillByNgrams( IList< string > words )
@@ -668,9 +644,9 @@ namespace lingvo.core.algorithm
                         var next = words[ p + 1 ];
                         var curr = words[ p     ];
 
-                        _Sb.Clear().Append( curr ).Append( ' ' ).Append( next );
+                        _Buf.Clear().Append( curr ).Append( ' ' ).Append( next );
 
-                        ngramDict.AddOrUpdate( _Sb.ToString() );
+                        ngramDict.AddOrUpdate( _Buf.ToString() );
                     }
 
                     CutDictionaryIfNeed( ngramDict, dictType );
@@ -689,9 +665,9 @@ namespace lingvo.core.algorithm
                         var next1  = words[ p + 1 ];
                         var next2  = words[ p + 2 ];
 
-                        _Sb.Clear().Append( curr ).Append( ' ' ).Append( next1 ).Append( ' ' ).Append( next2 );
+                        _Buf.Clear().Append( curr ).Append( ' ' ).Append( next1 ).Append( ' ' ).Append( next2 );
 
-                        ngramDict.AddOrUpdate( _Sb.ToString() );
+                        ngramDict.AddOrUpdate( _Buf.ToString() );
                     }
 
                     CutDictionaryIfNeed( ngramDict, dictType );
@@ -711,9 +687,9 @@ namespace lingvo.core.algorithm
                         var next2 = words[ p + 2 ];
                         var next3 = words[ p + 3 ];
 
-                        _Sb.Clear().Append( curr ).Append( ' ' ).Append( next1 ).Append( ' ' ).Append( next2 ).Append( ' ' ).Append( next3 );
+                        _Buf.Clear().Append( curr ).Append( ' ' ).Append( next1 ).Append( ' ' ).Append( next2 ).Append( ' ' ).Append( next3 );
 
-                        ngramDict.AddOrUpdate( _Sb.ToString() );
+                        ngramDict.AddOrUpdate( _Buf.ToString() );
                     }
 
                     CutDictionaryIfNeed( ngramDict, dictType );
@@ -732,7 +708,7 @@ namespace lingvo.core.algorithm
 
             if ( percent.HasValue )
             {
-                var ss = new SortedSet< word_t >( word_t_comparer.Inst );
+                var ss = new SortedSet< word_t >( word_t.Comparer.Inst );
                 var sum = 0;
                 foreach ( var p in dict )
                 {
@@ -753,12 +729,11 @@ namespace lingvo.core.algorithm
 
                     dict.Add( word.Value, word.Count );
                 }
-                ss = null;
             }
         }
         public SortedSet< word_t > CreateSortedSetAndCutIfNeed( IEnumerable< word_t > words, NGramsEnum dictType, int sum )
         {
-            var ss = new SortedSet< word_t >( word_t_comparer.Inst );
+            var ss = new SortedSet< word_t >( word_t.Comparer.Inst );
 
             var percent = GetCutPercent( dictType, _D_param );
 
@@ -832,12 +807,11 @@ namespace lingvo.core.algorithm
     /// <summary>
     /// 
     /// </summary>
-    internal static class tfidfExt
+    internal static class TfIdfExtensions
     {
         public static void AddOrUpdate( this Dictionary< string, int > dict, string key )
         {
-            int count;
-            if ( dict.TryGetValue( key, out count ) )
+            if ( dict.TryGetValue( key, out var count ) )
             {
                 dict[ key ] = count + 1;
             }
@@ -848,8 +822,7 @@ namespace lingvo.core.algorithm
         }
         public static void AddOrUpdate( this Dictionary< string, int > dict, string key, int countValue )
         {
-            int count;
-            if ( dict.TryGetValue( key, out count ) )
+            if ( dict.TryGetValue( key, out var count ) )
             {
                 dict[ key ] = count + countValue;
             }

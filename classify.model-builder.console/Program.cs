@@ -238,7 +238,7 @@ namespace lingvo.classify.modelbuilder
             Console.WriteLine( "start process: '" + bp.ToString() + "'..." );
 
             #region [.-0-.]
-            var _tfidf    = new tfidf( bp.Ngrams, bp.D_param );
+            var tfidf     = new TfIdf( bp.Ngrams, bp.D_param );
             var tokenizer = new ClassifyTokenizer( bp.UrlDetectorModel );
             #endregion
 
@@ -267,12 +267,12 @@ namespace lingvo.classify.modelbuilder
 					throw (new InvalidDataException("input text is-null-or-white-space, filename: '" + fileName + '\''));
 				}
                 
-                _tfidf.BeginAddDocument();
+                tfidf.BeginAddDocument();
                 tokenizer.Run( text, (word) =>
                 {
-                    _tfidf.AddDocumentWord( word );
+                    tfidf.AddDocumentWord( word );
                 });
-                _tfidf.EndAddDocument();
+                tfidf.EndAddDocument();
 
                 text = null;
 
@@ -297,22 +297,22 @@ namespace lingvo.classify.modelbuilder
 			#region [.-2-.]
             Console.Write( "start process TFiDF..." );
 
-            var _tfidf_result = default(tfidf.result);
+            var tfidf_result = default(TfIdf.Result);
             switch ( bp.Method )
             {
                 case MethodEnum.tfidf:
-                    _tfidf_result = _tfidf.Process();
+                    tfidf_result = tfidf.Process();
                 break;
 
                 case MethodEnum.bm25:
-                    _tfidf_result = _tfidf.Process_BM25();
+                    tfidf_result = tfidf.Process_BM25();
                 break;
 
                 case MethodEnum.R_tfidf:
-                    _tfidf_result = _tfidf.Process_R();
+                    tfidf_result = tfidf.Process_R();
                 break;
             }                
-			_tfidf = null;
+			tfidf = null;
 			GCCollect();
 
             Console.WriteLine( "end process TFiDF" );
@@ -332,13 +332,13 @@ namespace lingvo.classify.modelbuilder
 				var header = "#\t'" + string.Join( "'\t'", Config.INPUT_FILES ) + '\'';
 				sw.WriteLine( header );				
 				
-                for ( int i = 0, len = _tfidf_result.TFiDF.Length; i < len; i++ )
+                for ( int i = 0, len = tfidf_result.TFiDF.Length; i < len; i++ )
                 {
-					var values = _tfidf_result.TFiDF[ i ];
+					var values = tfidf_result.TFiDF[ i ];
 					//if ( values.Sum() != 0 )
                     if ( !AllValuesAreEquals( values ) )
 					{
-	                    var w = _tfidf_result.Words[ i ];
+	                    var w = tfidf_result.Words[ i ];
 	                    sb.Clear().Append( w ).Append( '\t' );
 	                    for ( int j = 0, values_len = values.Length; j < values_len; j++ )
 	                    {
