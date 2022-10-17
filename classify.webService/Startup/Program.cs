@@ -28,23 +28,16 @@ namespace classify.webService
             {
                 //---------------------------------------------------------------//
                 var cfg = new Config();
-                var modelConfig = new ModelConfig()
-                {
-                    Filenames   = cfg.MODEL_FILENAMES,
-                    RowCapacity = cfg.MODEL_ROW_CAPACITY, 
-                    NGramsType  = cfg.MODEL_NGRAMS_TYPE 
-                };
-                using var model  = new ModelNative( modelConfig ); //new ModelHalfNative( modelConfig ); //new ModelClassic( modelConfig );
-                var config = new ClassifierConfig( cfg.URL_DETECTOR_RESOURCES_XML_FILENAME );
+                using var env = ClassifyEnvironment.Create( cfg );
 
-                var concurrentFactory = new ConcurrentFactory( config, model, cfg );
+                var concurrentFactory = new ConcurrentFactory( env, cfg );
                 //---------------------------------------------------------------//
 
                 var host = Host.CreateDefaultBuilder( args )
                                .ConfigureLogging( loggingBuilder => loggingBuilder.ClearProviders().AddDebug().AddConsole().AddEventSourceLogger()
                                                               .AddEventLog( new EventLogSettings() { LogName = SERVICE_NAME, SourceName = SERVICE_NAME } ) )
                                //---.UseWindowsService()
-                               .ConfigureServices( (hostContext, services) => services.AddSingleton< IConfig >( cfg ).AddSingleton< IAntiBotConfig >( cfg ).AddSingleton( concurrentFactory ) )
+                               .ConfigureServices( (hostContext, services) => services.AddSingleton< IAntiBotConfig >( cfg ).AddSingleton( concurrentFactory ) )
                                .ConfigureWebHostDefaults( webBuilder => webBuilder.UseStartup< Startup >() )
                                .Build();
                 hostApplicationLifetime = host.Services.GetService< IHostApplicationLifetime >();

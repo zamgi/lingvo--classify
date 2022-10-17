@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+
 using lingvo.classify;
 
 namespace classify.webService
@@ -15,10 +16,10 @@ namespace classify.webService
 		private readonly SemaphoreSlim                 _Semaphore;
         private readonly ConcurrentStack< Classifier > _Stack;
 
-        public ConcurrentFactory( ClassifierConfig config, IModel model, IConfig cfg )
+        internal ConcurrentFactory( ClassifyEnvironment env, Config cfg )
 		{            
-            if ( config == null     ) throw (new ArgumentNullException( nameof(config) ));
-            if ( model  == null     ) throw (new ArgumentNullException( nameof(model) ));
+            if ( env == null ) throw (new ArgumentNullException( nameof(env) ));
+            if ( cfg == null ) throw (new ArgumentNullException( nameof(cfg) ));
             
 			Config = cfg ?? throw (new ArgumentNullException( nameof(cfg) ));
 			var instanceCount = cfg.CONCURRENT_FACTORY_INSTANCE_COUNT;
@@ -28,11 +29,11 @@ namespace classify.webService
             _Stack     = new ConcurrentStack< Classifier >();
             for ( int i = 0; i < instanceCount; i++ )
 			{
-                _Stack.Push( new Classifier( config, model ) );
+                _Stack.Push( env.CreateClassifier() );
 			}			
 		}
 
-		public IConfig Config { get; }
+		internal Config Config { get; }
 
         public async Task< IList< ClassifyInfo > > Run( string text )
 		{

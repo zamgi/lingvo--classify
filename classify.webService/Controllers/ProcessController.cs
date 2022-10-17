@@ -2,6 +2,7 @@
 
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using lingvo.classify;
 #if DEBUG
 using Microsoft.Extensions.Logging;
 #endif
@@ -46,8 +47,9 @@ namespace classify.webService.Controllers
 #if DEBUG
                 _Logger.LogInformation( $"start process: '{m.Text}'..." );
 #endif
-                var p = await _ConcurrentFactory.Run( m.Text );
-                var result = new ResultVM( m, p, _ConcurrentFactory.Config );
+                var classifyInfos = await _ConcurrentFactory.Run( m.Text );
+                var classes = classes_t.GetClasses( classifyInfos, _ConcurrentFactory.Config );
+                var result = new ResultVM( m, classes );
 #if DEBUG
                 _Logger.LogInformation( $"end process: '{m.Text}'." );
 #endif

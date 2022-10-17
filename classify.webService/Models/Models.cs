@@ -34,21 +34,18 @@ namespace classify.webService
         }
 
         public ResultVM( in InitParamsVM m, Exception ex ) : this() => (init_params, exception_message) = (m, ex.Message);
-        public ResultVM( in InitParamsVM m, IList< ClassifyInfo > classifyInfos, IConfig cfg ) : this()
+        public ResultVM( in InitParamsVM m, IList< classes_t > classes ) : this()
         {
-            init_params = m;
-            if ( classifyInfos != null && classifyInfos.Count != 0 )
+            init_params = m;            
+            if ( (classes != null) && (classes.Count != 0) )
             {
-                var sum = classifyInfos.Sum( ci => ci.Cosine );
-                classify_infos = (from ci in classifyInfos
-                                  let percent = (ci.Cosine / sum) * 100
-                                  where (cfg.CLASS_THRESHOLD_PERCENT <= percent)
+                classify_infos = (from ci in classes
                                   select
                                     new classify_info()
                                     {
-                                        class_index = ci.ClassIndex,
-                                        class_name  = cfg.ClassIndex2Text( ci.ClassIndex ),
-                                        percent     = percent.ToString( "N2" ),
+                                        class_index = ci.class_index,
+                                        class_name  = ci.class_name,
+                                        percent     = ci.percent.ToString("N2"),
                                     }
                                  ).ToList();
             }

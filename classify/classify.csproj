@@ -22,6 +22,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.1" />
+  </ItemGroup>
+  
+  <ItemGroup>
     <None Remove=".gitignore" />
   </ItemGroup>
 </Project>
