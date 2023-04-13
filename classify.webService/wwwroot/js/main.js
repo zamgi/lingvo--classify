@@ -4,12 +4,8 @@ $(document).ready(function () {
         DEFAULT_TEXT          = 'Сегодня в App Store вышло обновленное приложение Яндекс.Перевода для iOS. Теперь в нем есть возможность полнотекстового перевода в офлайн-режиме. Машинный перевод прошел путь от мейнфреймов, занимавших целые комнаты и этажи, до мобильных устройств, помещающихся в карман. Сегодня полнотекстовый статистический машинный перевод, требовавший ранее огромных ресурсов, стал доступен любому пользователю мобильного устройства – даже без подключения к сети. Люди давно мечтают о «вавилонской рыбке» – универсальном компактном переводчике, который всегда можно взять с собой. И, кажется, мечта эта постепенно начинает сбываться. Мы решили, воспользовавшись подходящим случаем, подготовить небольшой экскурс в историю машинного перевода и рассказать о том, как развивалась эта интереснейшая область на стыке лингвистики, математики и информатики.';
 
     var textOnChange = function () {
-        var _len = $("#text").val().length; 
-        var len = _len.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-        var $textLength = $("#textLength");
-        $textLength.html("длина текста: " + len + " символов");
-        if (MAX_INPUTTEXT_LENGTH < _len) $textLength.addClass("max-inputtext-length");
-        else                             $textLength.removeClass("max-inputtext-length");
+        let len = $('#text').val().length, len_txt = len.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+        $('#textLength').toggleClass('max-inputtext-length', MAX_INPUTTEXT_LENGTH < len).html('length of text: ' + len_txt + ' characters');
     };
     var getText = function( $text ) {
         var text = trim_text( $text.val().toString() );
