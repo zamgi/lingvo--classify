@@ -11,9 +11,9 @@ namespace captcha
     /// </summary>
     public interface IAntiBotConfig
     {
-        public const int    SAME_IP_BANNED_INTERVAL_IN_SECONDS  = 120;
-		public const int    SAME_IP_INTERVAL_REQUEST_IN_SECONDS = 10;
-		public const int    SAME_IP_MAX_REQUEST_IN_INTERVAL     = 3;
+        public const int SAME_IP_BANNED_INTERVAL_IN_SECONDS  = 120;
+		public const int SAME_IP_INTERVAL_REQUEST_IN_SECONDS = 10;
+		public const int SAME_IP_MAX_REQUEST_IN_INTERVAL     = 3;
 
         public int?   SameIpBannedIntervalInSeconds  { get; }
         public int?   SameIpIntervalRequestInSeconds { get; }

@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace captcha
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public sealed class CaptchaController : Controller
     {
         #region [.ctor().]

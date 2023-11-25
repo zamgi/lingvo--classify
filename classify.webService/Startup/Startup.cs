@@ -106,7 +106,7 @@ namespace classify.webService
                     address = address.Replace( "/*:", "/localhost:" );
 
                     using ( Process.Start( new ProcessStartInfo( address.TrimEnd( '/' ) + INDEX_PAGE_PATH ) { UseShellExecute = true } ) ) { };
-                }                
+                }
             }
             #endregion
         }

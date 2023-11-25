@@ -11,7 +11,7 @@ namespace captcha
         public string CaptchaPageTitle     { get; init; }
 
         public string ErrorMessage { get; init; }
-        public bool HasError => (ErrorMessage != null);
+        public bool   HasError => (ErrorMessage != null);
     }
 
     /// <summary>

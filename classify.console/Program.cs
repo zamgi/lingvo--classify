@@ -111,7 +111,7 @@ namespace lingvo.classify
         {
             using ( var enumerator = source.GetEnumerator() )
             {
-                for ( ; ; )
+                for (; ; )
                 {
                     try
                     {
@@ -120,7 +120,7 @@ namespace lingvo.classify
                     }
                     catch ( Exception ex )
                     {
-                        Debug.WriteLine( ex.GetType().Name + ": '" + ex.Message + '\'' );
+                        Debug.WriteLine( $"{ex.GetType().Name}: '{ex.Message}'" );
                         continue;
                     }
 
